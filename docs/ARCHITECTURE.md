@@ -135,19 +135,23 @@ soglie in ms + flag `evDone/hitDone/fxDone` + condizione di uscita. Estrazione:
 ```ts
 const sm = new StateMachine<PlayerStateId>({
   attL: {
-    onEnter: (ctx) => { /* … */ },
+    onEnter: (ctx) => {
+      /* … */
+    },
     at: [
-      [110, (ctx) => ctx.slashFx(0.75)],   // evento one-shot a t=110ms
+      [110, (ctx) => ctx.slashFx(0.75)], // evento one-shot a t=110ms
     ],
     during: [
-      [110, 220, (ctx) => ctx.openHitbox('attL')],  // finestra attiva
+      [110, 220, (ctx) => ctx.openHitbox('attL')], // finestra attiva
     ],
-    onUpdate: (dt, ctx) => { /* … */ },
-    exitAfter: 340,        // oppure exitWhen: (ctx) => …
+    onUpdate: (dt, ctx) => {
+      /* … */
+    },
+    exitAfter: 340, // oppure exitWhen: (ctx) => …
     next: 'free',
   },
 });
-sm.update(dt);             // dt in ms, accumulo interno del tempo nello stato
+sm.update(dt); // dt in ms, accumulo interno del tempo nello stato
 ```
 
 - `at(t, fn)` scatta una sola volta quando il tempo nello stato supera `t` (equivalente
@@ -167,13 +171,14 @@ esprimibile come numero (movimento della carica, interpolazione del salto, tween
 ```ts
 interface BossData {
   key: 'equus' | 'cornelia' | 'palladio';
-  nameKey: string; subKey: string;      // → strings.it.ts
-  hp: number;                            // 300 / 340 / 460
+  nameKey: string;
+  subKey: string; // → strings.it.ts
+  hp: number; // 300 / 340 / 460
   hurtbox: { w: number; h: number; ox: number; oy: number };
-  phase2: { trigger: number; speedMult: number; /* 150(hp<mhp/2) 170 230 ; 0.75 0.72 0.68 */ };
+  phase2: { trigger: number; speedMult: number /* 150(hp<mhp/2) 170 230 ; 0.75 0.72 0.68 */ };
   idle: { moveSpeed: number; stopDistance?: number };
-  attacks: Record<string, AttackData>;   // windup, finestre, danno, knockback, cooldown
-  selector: SelectorRule[];              // le regole di scelta, distanze e probabilità ESATTE
+  attacks: Record<string, AttackData>; // windup, finestre, danno, knockback, cooldown
+  selector: SelectorRule[]; // le regole di scelta, distanze e probabilità ESATTE
 }
 ```
 
@@ -193,11 +198,11 @@ Il punto più importante per il committente. Manifest in `art/registry.ts`:
 
 ```ts
 interface TextureEntry {
-  key: string;                       // es. 'equus'
-  size: [w: number, h: number];      // da ASSET_SIZE legacy
-  origin: [x: number, y: number];    // es. [0.5, 1] per i personaggi coi piedi a terra
+  key: string; // es. 'equus'
+  size: [w: number, h: number]; // da ASSET_SIZE legacy
+  origin: [x: number, y: number]; // es. [0.5, 1] per i personaggi coi piedi a terra
   generator?: (g: Graphics) => void; // da art/generated/*
-  file?: string;                     // 'assets/equus.png' — se esiste, VINCE
+  file?: string; // 'assets/equus.png' — se esiste, VINCE
   frames?: { count: number; rate: number }; // per spritesheet futuri
 }
 ```
@@ -206,7 +211,7 @@ interface TextureEntry {
   nel bundle → `load.image`/`load.spritesheet`; altrimenti → genera la texture dal
   generatore procedurale (identico a oggi). Il codice di gioco usa solo `key`.
 - Le 20 texture legacy (`dot ring btn btnsm pl0 pl1 pl2 wp0 wp1 wp2 slash bolt equus
-  ghost hand statue spear warn flameglow brazier`) migrano ciascuna nel proprio file in
+ghost hand statue spear warn flameglow brazier`) migrano ciascuna nel proprio file in
   `art/generated/`, con le stesse dimensioni di `ASSET_SIZE` e lo stesso disegno,
   incluso l'helper condiviso `robedFigure` (44×70, piedi a y=70).
 - **`npm run art:preview`**: seconda entry Vite (`art/preview/index.html`) che istanzia un
