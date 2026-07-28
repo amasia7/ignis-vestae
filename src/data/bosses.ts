@@ -9,7 +9,7 @@
  * dati e tipi.
  */
 
-export type BossId = 'equus' | 'cornelia' | 'palladio';
+export type BossId = 'equus' | 'cornelia' | 'palladio'; // @scaffold:boss-id
 
 export interface CircleHit {
   readonly radius: number;
@@ -308,5 +308,15 @@ export const PALLADIO: PalladioData = {
   },
 };
 
+// @scaffold:boss-data — new:boss inserisce qui i dati del nuovo boss
+
 /** Ordine di incontro (legacy r. 644: BOSS_MAKERS). */
-export const BOSSES = [EQUUS, CORNELIA, PALLADIO] as const;
+export const BOSSES: readonly BossCommonData[] = [
+  EQUUS,
+  CORNELIA,
+  PALLADIO,
+  // @scaffold:boss-list
+];
+
+/** Numero di boss della run: guida interludi, reliquie e salvataggio. */
+export const BOSS_COUNT = BOSSES.length;

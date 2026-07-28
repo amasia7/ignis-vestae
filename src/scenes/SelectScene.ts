@@ -34,7 +34,7 @@ export class SelectScene extends Phaser.Scene {
     this.sel = RUN.classIdx;
     this.cards = [];
 
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < CLASSES.length; i++) {
       const c = CLASSES[i]!;
       const cs = s.classes[i]!;
       const x0 = CARD_X0 + i * CARD_STEP;
@@ -102,15 +102,15 @@ export class SelectScene extends Phaser.Scene {
     this.hl = this.add.rectangle(0, 0, CARD_W, CARD_H).setStrokeStyle(2.5, 0xc9a227);
     this.pick(this.sel, true);
     const k = this.input.keyboard;
-    k?.on('keydown-LEFT', () => this.pick((this.sel + 2) % 3));
-    k?.on('keydown-A', () => this.pick((this.sel + 2) % 3));
-    k?.on('keydown-RIGHT', () => this.pick((this.sel + 1) % 3));
-    k?.on('keydown-D', () => this.pick((this.sel + 1) % 3));
+    k?.on('keydown-LEFT', () => this.pick((this.sel + CLASSES.length - 1) % CLASSES.length));
+    k?.on('keydown-A', () => this.pick((this.sel + CLASSES.length - 1) % CLASSES.length));
+    k?.on('keydown-RIGHT', () => this.pick((this.sel + 1) % CLASSES.length));
+    k?.on('keydown-D', () => this.pick((this.sel + 1) % CLASSES.length));
     k?.on('keydown-ENTER', () => this.confirm());
     k?.on('keydown-J', () => this.confirm());
     new GamepadMenu(this, {
-      left: () => this.pick((this.sel + 2) % 3),
-      right: () => this.pick((this.sel + 1) % 3),
+      left: () => this.pick((this.sel + CLASSES.length - 1) % CLASSES.length),
+      right: () => this.pick((this.sel + 1) % CLASSES.length),
       confirm: () => this.confirm(),
     });
   }

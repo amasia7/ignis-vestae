@@ -14,7 +14,10 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "art:preview": "vite --open /art-preview.html"
+    "art:preview": "vite --open /art-preview.html",
+    "new:boss": "node scripts/new-boss.mjs",
+    "new:class": "node scripts/new-class.mjs",
+    "new:scene": "node scripts/new-scene.mjs"
   },
   "dependencies": {
     "phaser": "^3.90.0"

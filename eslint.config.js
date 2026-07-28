@@ -10,6 +10,13 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
+    // gli script di scaffolding girano in Node
+    files: ['scripts/**/*.mjs'],
+    languageOptions: {
+      globals: { console: 'readonly', process: 'readonly', URL: 'readonly' },
+    },
+  },
+  {
     rules: {
       // niente `any`, nemmeno espliciti: la specifica chiede strict vero
       '@typescript-eslint/no-explicit-any': 'error',

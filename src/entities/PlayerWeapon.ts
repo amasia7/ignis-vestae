@@ -3,7 +3,7 @@ import { puff } from '../fx/particles';
 import type { TextureKey } from '../art/registry';
 import type { Player } from './Player';
 
-const WEAPON_KEYS: readonly TextureKey[] = ['wp0', 'wp1', 'wp2'];
+const WEAPON_KEYS: readonly TextureKey[] = ['wp0', 'wp1', 'wp2' /* @scaffold:weapon-key */];
 
 /**
  * Arma del player: posa per stato e fx del fendente.

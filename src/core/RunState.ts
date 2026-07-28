@@ -1,30 +1,33 @@
+import { BOSS_COUNT } from '../data/bosses';
 import { effectiveMult, maxFlasks } from './combat';
+
+export { BOSS_COUNT };
 
 /**
  * Stato della run, sopravvive ai cambi di scena (il RUN globale del legacy,
  * r. 57). Semantica identica: la classe persiste anche dopo la vittoria
  * (r. 980 resetta solo bossIdx e reliquie).
  */
-export const BOSS_COUNT = 3;
+const noRelics = (): boolean[] => new Array<boolean>(BOSS_COUNT).fill(false);
 
 export class RunState {
   classIdx = 0;
   bossIdx = 0;
-  relics: boolean[] = [false, false, false];
+  relics: boolean[] = noRelics();
   /** Best time per boss in ms (novità Fase 8; null = mai battuto). */
-  bestTimesMs: (number | null)[] = [null, null, null];
+  bestTimesMs: (number | null)[] = new Array<number | null>(BOSS_COUNT).fill(null);
 
   /** Selezione classe confermata (legacy Select.confirm, r. 759). */
   startRun(classIdx: number): void {
     this.classIdx = classIdx;
     this.bossIdx = 0;
-    this.relics = [false, false, false];
+    this.relics = noRelics();
   }
 
   /** Vittoria: torna al titolo mantenendo la classe (legacy r. 980). */
   endRun(): void {
     this.bossIdx = 0;
-    this.relics = [false, false, false];
+    this.relics = noRelics();
   }
 
   grantRelic(bossIdx: number): void {

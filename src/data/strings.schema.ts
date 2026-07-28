@@ -1,4 +1,5 @@
 import type { Action } from '../input/actions';
+import type { BossId } from './bosses';
 
 /**
  * Forma del bundle di stringhe. Ogni lingua (strings.it.ts oggi, strings.en.ts
@@ -59,14 +60,12 @@ export interface Strings {
     readonly nextTouch: string;
     readonly nextKey: string;
   };
-  readonly classes: readonly [ClassStrings, ClassStrings, ClassStrings];
-  readonly bosses: {
-    readonly equus: BossStrings;
-    readonly cornelia: BossStrings;
-    readonly palladio: BossStrings;
-  };
-  readonly arenas: readonly [string, string, string];
-  readonly relics: readonly [RelicStrings, RelicStrings, RelicStrings];
+  /** Stesso ordine di CLASSES; il numero di voci è verificato dai test. */
+  readonly classes: readonly ClassStrings[];
+  /** Una voce per BossId: il compilatore segnala i boss senza testi. */
+  readonly bosses: Readonly<Record<BossId, BossStrings>>;
+  readonly arenas: readonly string[];
+  readonly relics: readonly RelicStrings[];
   readonly fight: {
     readonly bossDown: string;
     readonly retryTouch: string;

@@ -95,6 +95,7 @@ export const STRINGS_IT: Strings = {
       abilityDesc: 'etereo e veloce per 2,5s: nulla lo tocca (ricarica 14s)',
       death: 'SEI  PERITO',
     },
+    // @scaffold:class-strings
   ],
 
   bosses: {
@@ -102,6 +103,7 @@ export const STRINGS_IT: Strings = {
     equus: { name: 'EQUUS OCTOBER', sub: 'Il Cavallo Immolato' },
     cornelia: { name: 'CORNELIA', sub: 'La Sepolta Viva' },
     palladio: { name: 'IL PALLADIO', sub: 'Custode Caduto di Troia' },
+    // @scaffold:boss-strings
   },
 
   // legacy r. 75

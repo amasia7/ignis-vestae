@@ -30,7 +30,7 @@ export interface AttackBox {
   damage: number;
 }
 
-const PLAYER_KEYS: readonly TextureKey[] = ['pl0', 'pl1', 'pl2'];
+const PLAYER_KEYS: readonly TextureKey[] = ['pl0', 'pl1', 'pl2' /* @scaffold:player-key */];
 
 /** Port fedele del Player legacy (r. 255-397): stessi stati, tempi e valori. */
 export class Player {

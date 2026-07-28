@@ -12,6 +12,7 @@ import { InterludeScene } from './scenes/InterludeScene';
 import { VictoryScene } from './scenes/VictoryScene';
 import { PauseScene } from './scenes/PauseScene';
 import { SettingsScene } from './scenes/SettingsScene';
+// @scaffold:scene-import
 import { SaveManager } from './core/SaveManager';
 
 // Carica salvataggio e impostazioni prima di avviare il gioco
@@ -47,6 +48,7 @@ const game = new Phaser.Game({
     VictoryScene,
     PauseScene,
     SettingsScene,
+    // @scaffold:scene-list
   ],
 });
 

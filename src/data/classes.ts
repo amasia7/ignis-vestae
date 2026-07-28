@@ -2,7 +2,7 @@
  * Le tre classi giocabili — solo meccanica; i testi vivono nel bundle i18n
  * (stesso indice). Fonte: legacy r. 38-54, verificata dal test di fedeltà.
  */
-export type ClassId = 'vestale' | 'sacerdote' | 'aruspice';
+export type ClassId = 'vestale' | 'sacerdote' | 'aruspice'; // @scaffold:class-id
 export type AbilityId = 'cast' | 'smite' | 'haste';
 
 export interface PlayerClassData {
@@ -18,7 +18,7 @@ export interface PlayerClassData {
   readonly trimColor: number;
 }
 
-export const CLASSES: readonly [PlayerClassData, PlayerClassData, PlayerClassData] = [
+export const CLASSES: readonly PlayerClassData[] = [
   {
     id: 'vestale',
     hp: 100,
@@ -55,6 +55,7 @@ export const CLASSES: readonly [PlayerClassData, PlayerClassData, PlayerClassDat
     robeColor: 0xd8dde5,
     trimColor: 0x4a6fa0,
   },
+  // @scaffold:class-list
 ];
 
 /**

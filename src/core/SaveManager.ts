@@ -1,4 +1,4 @@
-import { RUN } from './RunState';
+import { BOSS_COUNT, RUN } from './RunState';
 import { DEFAULT_SETTINGS, applySettings, settings, type SettingsData } from './settings';
 
 /**
@@ -70,13 +70,13 @@ export const SaveManager = {
     storage()?.removeItem(KEY);
     RUN.classIdx = 0;
     RUN.bossIdx = 0;
-    RUN.relics = [false, false, false];
-    RUN.bestTimesMs = [null, null, null];
+    RUN.relics = new Array<boolean>(BOSS_COUNT).fill(false);
+    RUN.bestTimesMs = new Array<number | null>(BOSS_COUNT).fill(null);
     applySettings(DEFAULT_SETTINGS);
   },
 
   /** C'è una run da riprendere? (boss raggiunto oltre il primo) */
   hasRunInProgress(): boolean {
-    return RUN.bossIdx > 0 && RUN.bossIdx < 3;
+    return RUN.bossIdx > 0 && RUN.bossIdx < BOSS_COUNT;
   },
 };

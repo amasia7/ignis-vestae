@@ -16,7 +16,7 @@ describe('RunState — progressione della run', () => {
   it('le reliquie si applicano al passaggio di boss', () => {
     const run = new RunState();
     run.startRun(1); // Sacerdote: mult 1.25, 3 ampolle
-    const cls = CLASSES[1];
+    const cls = CLASSES[1]!;
 
     // prima di Equus: nessun bonus
     expect(run.effectiveMult(cls.damageMult)).toBeCloseTo(1.25);
