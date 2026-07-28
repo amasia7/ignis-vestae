@@ -2,7 +2,9 @@ import Phaser from 'phaser';
 import { GROUND, H, W } from '../config/game.config';
 import { strings } from '../data/i18n';
 import { RUN } from '../core/RunState';
+import { SaveManager } from '../core/SaveManager';
 import { IS_TOUCH } from '../input/device';
+import { GamepadMenu } from '../input/GamepadMenu';
 import { puff } from '../fx/particles';
 import { T } from '../ui/text';
 import { buildArena } from './arena';
@@ -58,12 +60,17 @@ export class VictoryScene extends Phaser.Scene {
         15,
         '#8d7c5c',
       ).setDepth(2);
+      let done = false;
       const back = (): void => {
+        if (done) return;
+        done = true;
         RUN.endRun();
+        SaveManager.save();
         this.scene.start('title');
       };
       this.input.keyboard?.once('keydown-ENTER', back);
       this.input.once('pointerdown', back);
+      new GamepadMenu(this, { confirm: back });
     });
   }
 }

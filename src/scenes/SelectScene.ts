@@ -3,7 +3,9 @@ import { MENU_BG_COLOR, W } from '../config/game.config';
 import { CLASSES, CLASS_STAT_MAX } from '../data/classes';
 import { strings } from '../data/i18n';
 import { RUN } from '../core/RunState';
+import { SaveManager } from '../core/SaveManager';
 import { IS_TOUCH } from '../input/device';
+import { GamepadMenu } from '../input/GamepadMenu';
 import { beep } from '../fx/audio';
 import { T } from '../ui/text';
 import type { TextureKey } from '../art/registry';
@@ -106,6 +108,11 @@ export class SelectScene extends Phaser.Scene {
     k?.on('keydown-D', () => this.pick((this.sel + 1) % 3));
     k?.on('keydown-ENTER', () => this.confirm());
     k?.on('keydown-J', () => this.confirm());
+    new GamepadMenu(this, {
+      left: () => this.pick((this.sel + 2) % 3),
+      right: () => this.pick((this.sel + 1) % 3),
+      confirm: () => this.confirm(),
+    });
   }
 
   private pick(i: number, silent = false): void {
@@ -119,6 +126,7 @@ export class SelectScene extends Phaser.Scene {
 
   private confirm(): void {
     RUN.startRun(this.sel);
+    SaveManager.save();
     beep(320, 0.3, 'sine', 0.05, 120);
     this.scene.start('lore');
   }

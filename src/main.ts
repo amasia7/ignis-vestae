@@ -10,6 +10,12 @@ import { FightScene } from './scenes/FightScene';
 import { HudScene } from './scenes/HudScene';
 import { InterludeScene } from './scenes/InterludeScene';
 import { VictoryScene } from './scenes/VictoryScene';
+import { PauseScene } from './scenes/PauseScene';
+import { SettingsScene } from './scenes/SettingsScene';
+import { SaveManager } from './core/SaveManager';
+
+// Carica salvataggio e impostazioni prima di avviare il gioco
+SaveManager.load();
 
 // Testi dell'overlay "ruota il telefono" (r. 18 legacy) dal bundle i18n
 const rot = document.getElementById('rot');
@@ -39,6 +45,8 @@ const game = new Phaser.Game({
     HudScene,
     InterludeScene,
     VictoryScene,
+    PauseScene,
+    SettingsScene,
   ],
 });
 

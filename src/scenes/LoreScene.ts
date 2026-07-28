@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { H, MENU_BG_COLOR, W } from '../config/game.config';
 import { strings } from '../data/i18n';
 import { IS_TOUCH } from '../input/device';
+import { GamepadMenu } from '../input/GamepadMenu';
 import { beep } from '../fx/audio';
 import { T } from '../ui/text';
 
@@ -29,6 +30,7 @@ export class LoreScene extends Phaser.Scene {
     };
     this.input.keyboard?.on('keydown-ENTER', next);
     this.input.on('pointerdown', next);
+    new GamepadMenu(this, { confirm: next });
   }
 
   private showPage(): void {

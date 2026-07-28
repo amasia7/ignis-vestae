@@ -1,7 +1,10 @@
 import Phaser from 'phaser';
 import { GROUND, H, W } from '../config/game.config';
 import { strings } from '../data/i18n';
+import { RUN } from '../core/RunState';
+import { SaveManager } from '../core/SaveManager';
 import { IS_TOUCH } from '../input/device';
+import { GamepadMenu } from '../input/GamepadMenu';
 import { beep, initAudio } from '../fx/audio';
 import { puff } from '../fx/particles';
 import { T } from '../ui/text';
@@ -52,6 +55,28 @@ export class TitleScene extends Phaser.Scene {
         );
       },
     });
+    // novità Fase 8: riprendi la run salvata e impostazioni
+    if (SaveManager.hasRunInProgress()) {
+      T(
+        this,
+        W / 2,
+        362,
+        s.title.continuePrefix + (s.arenas[RUN.bossIdx] ?? ''),
+        14,
+        '#8d7c5c',
+      ).setDepth(2);
+      this.input.keyboard?.on('keydown-C', () => {
+        initAudio();
+        beep(300, 0.2, 'sine', 0.05, 80);
+        this.scene.start('fight');
+      });
+    }
+    T(this, W / 2, 388, s.title.settingsHint, 12, '#6d6048').setDepth(2);
+    this.input.keyboard?.on('keydown-O', () => {
+      this.scene.pause();
+      this.scene.launch('settings', { from: 'title' });
+    });
+
     const go2 = (): void => {
       initAudio();
       beep(220, 0.2, 'sine', 0.05, 60);
@@ -59,5 +84,6 @@ export class TitleScene extends Phaser.Scene {
     };
     this.input.keyboard?.on('keydown-ENTER', go2);
     this.input.on('pointerdown', go2);
+    new GamepadMenu(this, { confirm: go2 });
   }
 }

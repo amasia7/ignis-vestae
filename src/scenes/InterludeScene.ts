@@ -2,7 +2,9 @@ import Phaser from 'phaser';
 import { GROUND, H, W } from '../config/game.config';
 import { strings } from '../data/i18n';
 import { RUN, BOSS_COUNT } from '../core/RunState';
+import { SaveManager } from '../core/SaveManager';
 import { IS_TOUCH } from '../input/device';
+import { GamepadMenu } from '../input/GamepadMenu';
 import { beep } from '../fx/audio';
 import { puff } from '../fx/particles';
 import { T } from '../ui/text';
@@ -52,13 +54,18 @@ export class InterludeScene extends Phaser.Scene {
     ).setDepth(2);
     this.tweens.add({ targets: go, alpha: 0.2, duration: 600, yoyo: true, repeat: -1 });
     this.time.delayedCall(500, () => {
+      let done = false;
       const next = (): void => {
+        if (done) return;
+        done = true;
         beep(300, 0.3, 'sine', 0.05, 150);
         RUN.advance();
+        SaveManager.save();
         this.scene.start(RUN.bossIdx < BOSS_COUNT ? 'fight' : 'victory');
       };
       this.input.keyboard?.once('keydown-ENTER', next);
       this.input.once('pointerdown', next);
+      new GamepadMenu(this, { confirm: next });
     });
   }
 }

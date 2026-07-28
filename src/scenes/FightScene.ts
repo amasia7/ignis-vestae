@@ -3,6 +3,7 @@ import { GROUND, H, PHYSICS_BOUNDS, W } from '../config/game.config';
 import { ABILITIES, FIGHT } from '../config/balance';
 import { strings } from '../data/i18n';
 import { RUN } from '../core/RunState';
+import { SaveManager } from '../core/SaveManager';
 import { gameEvents } from '../core/EventBus';
 import { InputManager } from '../input/InputManager';
 import { KeyboardSource } from '../input/KeyboardSource';
@@ -32,6 +33,8 @@ export class FightScene extends Phaser.Scene implements CombatHost, BossHost {
 
   private winT = 0;
   private controls!: InputManager;
+  private keyboardSource!: KeyboardSource;
+  private retryArmed = false;
   private flames: Flame[] = [];
   private spears: Spear[] = [];
   private waves: Wave[] = [];
@@ -60,9 +63,21 @@ export class FightScene extends Phaser.Scene implements CombatHost, BossHost {
     );
 
     this.controls = new InputManager();
-    this.controls.addSource(new KeyboardSource(this));
+    this.keyboardSource = new KeyboardSource(this);
+    this.controls.addSource(this.keyboardSource);
     this.controls.addSource(new VirtualPad(this));
     this.controls.addSource(new GamepadSource(this));
+
+    // rimappature fatte dalle impostazioni in pausa: ricostruisci i tasti
+    const offSettings = gameEvents.on('settings:changed', () => this.keyboardSource.rebuild());
+    this.events.once('shutdown', offSettings);
+
+    // debug overlay solo in dev: il modulo non entra nella build di produzione
+    if (import.meta.env.DEV) {
+      this.input.keyboard?.on('keydown-F1', () => {
+        void import('../debug/DebugOverlay').then((m) => m.toggleDebugOverlay(this));
+      });
+    }
 
     this.player = new Player(this, this);
     const maker = BOSS_MAKERS[RUN.bossIdx];
@@ -152,6 +167,7 @@ export class FightScene extends Phaser.Scene implements CombatHost, BossHost {
       b.clearMarks();
       RUN.grantRelic(RUN.bossIdx);
       RUN.recordTime(RUN.bossIdx, this.fightTimeMs);
+      SaveManager.save();
       gameEvents.emit('relic:gained', { relicIdx: RUN.bossIdx });
       gameEvents.emit('boss:death', { bossIdx: RUN.bossIdx, fightTimeMs: this.fightTimeMs });
       this.banner(strings().fight.bossDown, '');
@@ -161,6 +177,7 @@ export class FightScene extends Phaser.Scene implements CombatHost, BossHost {
 
   onPlayerDeath(): void {
     this.over = true;
+    this.retryArmed = false;
     beep(60, 0.8, 'sawtooth', 0.07, -30);
     const dark = this.add.rectangle(W / 2, H / 2, W, H, 0x000000, 0).setDepth(12);
     this.tweens.add({ targets: dark, fillAlpha: 0.75, duration: 900 });
@@ -185,6 +202,7 @@ export class FightScene extends Phaser.Scene implements CombatHost, BossHost {
       const again = (): void => {
         this.scene.restart();
       };
+      this.retryArmed = true; // abilita anche il retry da gamepad (CONFIRM)
       this.input.keyboard?.once('keydown-ENTER', again);
       this.input.keyboard?.once('keydown-R', again);
       this.input.once('pointerdown', again);
@@ -194,6 +212,18 @@ export class FightScene extends Phaser.Scene implements CombatHost, BossHost {
   update(_time: number, dtRaw: number): void {
     const dt = Math.min(dtRaw, FIGHT.dtClampMs);
     this.controls.update();
+
+    // pausa con ESC o Start del gamepad (novità Fase 8)
+    if (!this.over && this.controls.justPressed('PAUSE')) {
+      this.scene.launch('pause');
+      this.scene.pause();
+      return;
+    }
+    // retry da gamepad dopo la morte
+    if (this.over && this.retryArmed && this.controls.justPressed('CONFIRM')) {
+      this.scene.restart();
+      return;
+    }
 
     // braci ambientali (r. 858-861)
     if (Math.random() < 0.2) puff(this, Math.random() * W, H - 10, 0xffaa5a, 1, 10, 1200);

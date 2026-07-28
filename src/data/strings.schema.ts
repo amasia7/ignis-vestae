@@ -1,3 +1,5 @@
+import type { Action } from '../input/actions';
+
 /**
  * Forma del bundle di stringhe. Ogni lingua (strings.it.ts oggi, strings.en.ts
  * domani) implementa questa interfaccia: il compilatore garantisce che nessuna
@@ -38,6 +40,9 @@ export interface Strings {
     readonly startKey: string;
     readonly hintControls: string;
     readonly hintRoll: string;
+    /** Novità Fase 8 (non presenti nel legacy). */
+    readonly continuePrefix: string;
+    readonly settingsHint: string;
   };
   readonly select: {
     readonly heading: string;
@@ -77,6 +82,28 @@ export interface Strings {
     readonly epilogue: string;
     readonly backTouch: string;
     readonly backKey: string;
+  };
+  /** Novità Fase 8: pausa e impostazioni (non presenti nel legacy). */
+  readonly pause: {
+    readonly title: string;
+    readonly resume: string;
+    readonly settings: string;
+    readonly quit: string;
+  };
+  readonly settingsUi: {
+    readonly title: string;
+    readonly hint: string;
+    readonly volume: string;
+    readonly shake: string;
+    readonly on: string;
+    readonly off: string;
+    readonly bindingsHeader: string;
+    readonly actions: Record<Action, string>;
+    readonly pressKey: string;
+    readonly resetSave: string;
+    readonly resetDone: string;
+    readonly bestTimes: string;
+    readonly noTime: string;
   };
   readonly vpad: {
     readonly left: string;

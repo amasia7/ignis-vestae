@@ -24,6 +24,9 @@ export const STRINGS_IT: Strings = {
     hintControls:
       'A/D muoversi · W salto · J colpo · L pesante · K/SPAZIO schivata · H ampolla · U abilità',
     hintRoll: 'La schivata attraversa gli attacchi. La resistenza governa ogni gesto.',
+    // novità Fase 8
+    continuePrefix: 'C  —  riprendi il rito: ',
+    settingsHint: 'O  —  impostazioni',
   },
 
   select: {
@@ -152,6 +155,39 @@ export const STRINGS_IT: Strings = {
     backKey: '—  INVIO: torna al titolo  —',
   },
 
+  // novità Fase 8: pausa e impostazioni
+  pause: {
+    title: 'PAUSA',
+    resume: 'INVIO / ESC  —  riprendi il rito',
+    settings: 'O  —  impostazioni',
+    quit: 'T  —  abbandona: torna al titolo',
+  },
+  settingsUi: {
+    title: 'IMPOSTAZIONI',
+    hint: '↑ ↓ scegliere · ◀ ▶ regolare · INVIO attivare · ESC tornare',
+    volume: 'VOLUME',
+    shake: 'SCOSSE DELLO SCHERMO',
+    on: 'SÌ',
+    off: 'NO',
+    bindingsHeader: 'COMANDI',
+    actions: {
+      MOVE_LEFT: 'muoversi a sinistra',
+      MOVE_RIGHT: 'muoversi a destra',
+      JUMP: 'salto',
+      LIGHT: 'colpo leggero',
+      HEAVY: 'colpo pesante',
+      ROLL: 'schivata',
+      HEAL: 'ampolla',
+      ABILITY: 'abilità',
+      CONFIRM: 'conferma',
+      PAUSE: 'pausa',
+    },
+    pressKey: 'premi un tasto…',
+    resetSave: 'CANCELLA SALVATAGGIO E RECORD',
+    resetDone: 'cancellato',
+    bestTimes: 'TEMPI MIGLIORI',
+    noTime: '—',
+  },
   vpad: {
     // legacy r. 226-233
     left: '◀',
