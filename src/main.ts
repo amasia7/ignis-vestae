@@ -1,19 +1,49 @@
 import Phaser from 'phaser';
-import { PlaceholderScene } from './scenes/PlaceholderScene';
+import { ACTIVE_POINTERS, BG_COLOR, GRAVITY_Y, H, W } from './config/game.config';
+import { strings } from './data/i18n';
+import { installAudioUnlock } from './fx/audio';
+import { BootScene } from './scenes/BootScene';
+import { TitleScene } from './scenes/TitleScene';
+import { SelectScene } from './scenes/SelectScene';
+import { LoreScene } from './scenes/LoreScene';
+import { FightScene } from './scenes/FightScene';
+import { HudScene } from './scenes/HudScene';
+import { InterludeScene } from './scenes/InterludeScene';
+import { VictoryScene } from './scenes/VictoryScene';
 
-// Fase 1: configurazione identica al legacy (r. 988-995), con una sola scena vuota.
-// W/H/GROUND e gravità migreranno in config/ nella Fase 2 insieme al resto dei dati.
-const W = 960;
-const H = 540;
+// Testi dell'overlay "ruota il telefono" (r. 18 legacy) dal bundle i18n
+const rot = document.getElementById('rot');
+if (rot) {
+  const s = strings().meta;
+  rot.innerHTML = `⟳<br><br>${s.rotate}<br><span style="font-size:13px;color:#8d7c5c">${s.rotateSub}</span>`;
+}
+document.title = strings().meta.htmlTitle;
 
-new Phaser.Game({
+installAudioUnlock();
+
+const game = new Phaser.Game({
   type: Phaser.AUTO,
   parent: 'game',
   width: W,
   height: H,
-  backgroundColor: '#0b0810',
-  physics: { default: 'arcade', arcade: { gravity: { x: 0, y: 1500 }, debug: false } },
+  backgroundColor: BG_COLOR,
+  physics: { default: 'arcade', arcade: { gravity: { x: 0, y: GRAVITY_Y }, debug: false } },
   scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
-  input: { activePointers: 4 },
-  scene: [PlaceholderScene],
+  input: { activePointers: ACTIVE_POINTERS, gamepad: true },
+  scene: [
+    BootScene,
+    TitleScene,
+    SelectScene,
+    LoreScene,
+    FightScene,
+    HudScene,
+    InterludeScene,
+    VictoryScene,
+  ],
 });
+
+// Solo in dev: aggancio per test end-to-end e debug da console.
+// import.meta.env.DEV è false in produzione: il blocco viene eliminato.
+if (import.meta.env.DEV) {
+  (window as unknown as { __IGNIS?: Phaser.Game }).__IGNIS = game;
+}

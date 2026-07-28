@@ -20,9 +20,30 @@
         width: 100%;
         height: 100%;
       }
+      #rot {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: #070509;
+        z-index: 50;
+        color: #c9a227;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-family: Georgia, serif;
+        font-size: 19px;
+        letter-spacing: 2px;
+        padding: 24px;
+      }
+      @media (pointer: coarse) and (orientation: portrait) {
+        #rot {
+          display: flex;
+        }
+      }
     </style>
   </head>
   <body>
+    <div id="rot"></div>
     <div id="game"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
