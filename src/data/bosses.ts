@@ -225,6 +225,7 @@ export interface PalladioData extends BossCommonData {
     readonly gapMs: number; // r. 586: 170·sp
     readonly advanceSpeed: number; // r. 594
     readonly hit: RectHit; // r. 595: 110×72 davanti al boss
+    readonly hitOffsetY: number; // r. 595: rettangolo a GROUND-88
     readonly cooldownMs: number; // r. 588
   };
   readonly throw: {
@@ -276,6 +277,7 @@ export const PALLADIO: PalladioData = {
     gapMs: 170, // r. 586
     advanceSpeed: 330, // r. 594
     hit: { w: 110, h: 72, damage: 13, knockback: 220 }, // r. 595
+    hitOffsetY: -88, // r. 595
     cooldownMs: 900, // r. 588
   },
   throw: {
