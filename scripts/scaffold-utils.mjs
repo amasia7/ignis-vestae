@@ -29,16 +29,7 @@ export function insertAtMarker(file, marker, snippet) {
     console.error(`Marker "${marker}" non trovato in ${file}: file modificato a mano?`);
     process.exit(1);
   }
-  // anti-duplicazione: usa la riga più distintiva dello snippet
-  const probe = snippet
-    .split('\n')
-    .map((l) => l.trim())
-    .filter((l) => l.length >= 12)
-    .sort((a, b) => b.length - a.length)[0];
-  if (probe && src.includes(probe)) {
-    console.error(`Sembra già presente in ${file}: interrompo per non duplicare.`);
-    process.exit(1);
-  }
+  // l'anti-duplicazione è responsabilità dello script chiamante (ensureAbsent)
   writeFileSync(full, src.replace(marker, `${snippet}${marker}`));
   console.log(`  ~ ${file}`);
 }
@@ -53,6 +44,15 @@ export function extendUnion(file, marker, literal) {
   }
   writeFileSync(full, src.replace(re, ` | '${literal}'; // ${marker}`));
   console.log(`  ~ ${file}`);
+}
+
+/** Interrompe se l'identificatore esiste già nel file (doppia esecuzione). */
+export function ensureAbsent(file, needle, what) {
+  const src = readFileSync(path.join(root, file), 'utf8');
+  if (src.includes(needle)) {
+    console.error(`${what} esiste già in ${file}: interrompo.`);
+    process.exit(1);
+  }
 }
 
 export function replaceOnce(file, search, replacement) {

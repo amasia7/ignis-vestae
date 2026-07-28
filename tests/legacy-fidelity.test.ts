@@ -77,8 +77,10 @@ describe('testi di lore identici al legacy', () => {
   });
 
   it('i testi delle classi: nome, sottotitolo, descrizione, abilità, morte', () => {
+    // le prime N classi sono quelle del legacy; eventuali classi aggiunte
+    // con new:class vengono dopo e non toccano queste
     expect(
-      STRINGS_IT.classes.map((c) => ({
+      STRINGS_IT.classes.slice(0, legacyClasses.length).map((c) => ({
         n: c.name,
         sub: c.sub,
         d: c.desc,
@@ -114,7 +116,7 @@ describe('testi di lore identici al legacy', () => {
 describe('numeri delle classi identici al legacy', () => {
   it('hp, stamina, mult, velocità, ampolle, ricarica, colori', () => {
     expect(
-      CLASSES.map((c) => ({
+      CLASSES.slice(0, legacyClasses.length).map((c) => ({
         hp: c.hp,
         st: c.stamina,
         mult: c.damageMult,
@@ -142,6 +144,7 @@ describe('numeri delle classi identici al legacy', () => {
 describe('hp dei boss identici al legacy', () => {
   it('300 / 340 / 460 come dichiarati nei costruttori', () => {
     const found = [...html.matchAll(/this\.mhp=(\d+); this\.hp=\1;/g)].map((m) => Number(m[1]));
-    expect(found).toEqual(BOSSES.map((b) => b.hp));
+    expect(found).toEqual(BOSSES.slice(0, found.length).map((b) => b.hp));
+    expect(BOSSES.length).toBeGreaterThanOrEqual(found.length);
   });
 });

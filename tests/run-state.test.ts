@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { RunState } from '../src/core/RunState';
+import { BOSS_COUNT, RunState } from '../src/core/RunState';
 import { CLASSES } from '../src/data/classes';
 
 describe('RunState — progressione della run', () => {
@@ -10,7 +10,7 @@ describe('RunState — progressione della run', () => {
     run.startRun(2);
     expect(run.classIdx).toBe(2);
     expect(run.bossIdx).toBe(0);
-    expect(run.relics).toEqual([false, false, false]);
+    expect(run.relics).toEqual(new Array(BOSS_COUNT).fill(false));
   });
 
   it('le reliquie si applicano al passaggio di boss', () => {
@@ -34,9 +34,12 @@ describe('RunState — progressione della run', () => {
     expect(run.effectiveMult(cls.damageMult)).toBeCloseTo(1.75);
     expect(run.maxFlasks(cls.flasks)).toBe(4);
 
-    // dopo il Palladio: run completa
-    run.grantRelic(2);
-    run.advance();
+    // dal Palladio in poi (BOSS_COUNT cresce con new:boss): run completa
+    for (let i = 2; i < BOSS_COUNT; i++) {
+      expect(run.isComplete).toBe(false);
+      run.grantRelic(i);
+      run.advance();
+    }
     expect(run.isComplete).toBe(true);
   });
 
@@ -48,7 +51,7 @@ describe('RunState — progressione della run', () => {
     run.endRun();
     expect(run.classIdx).toBe(2); // la Select ripropone l'ultima classe
     expect(run.bossIdx).toBe(0);
-    expect(run.relics).toEqual([false, false, false]);
+    expect(run.relics).toEqual(new Array(BOSS_COUNT).fill(false));
   });
 
   it('best time per boss: registra solo i miglioramenti', () => {

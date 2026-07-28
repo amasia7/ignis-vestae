@@ -20,12 +20,14 @@ function extractAssetSize(): Record<string, [number, number]> {
 describe('manifest asset', () => {
   const legacySizes = extractAssetSize();
 
-  it('contiene tutte e sole le chiavi del legacy', () => {
-    expect([...TEXTURE_KEYS].sort()).toEqual(Object.keys(legacySizes).sort());
+  it('contiene tutte le chiavi del legacy', () => {
+    // chiavi aggiunte da new:boss/new:class sono ammesse; quelle legacy
+    // devono esserci tutte
+    for (const key of Object.keys(legacySizes)) expect(TEXTURE_KEYS).toContain(key);
   });
 
-  it('dimensioni identiche ad ASSET_SIZE', () => {
-    for (const key of TEXTURE_KEYS) {
+  it('dimensioni identiche ad ASSET_SIZE per le chiavi legacy', () => {
+    for (const key of Object.keys(legacySizes) as (typeof TEXTURE_KEYS)[number][]) {
       expect([...TEXTURES[key].size], `dimensioni di "${key}"`).toEqual(legacySizes[key]);
     }
   });

@@ -1,4 +1,11 @@
-import { names, insertAtMarker, extendUnion, replaceOnce, writeNew } from './scaffold-utils.mjs';
+import {
+  names,
+  ensureAbsent,
+  insertAtMarker,
+  extendUnion,
+  replaceOnce,
+  writeNew,
+} from './scaffold-utils.mjs';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { root } from './scaffold-utils.mjs';
@@ -14,6 +21,7 @@ const { kebab, pascal, camel, upper } = names(process.argv[2]);
 const classesSrc = readFileSync(path.join(root, 'src/data/classes.ts'), 'utf8');
 const idx = (classesSrc.match(/robeColor:/g) ?? []).length;
 
+ensureAbsent('src/data/classes.ts', `'${camel}'`, `La classe "${kebab}"`);
 extendUnion('src/data/classes.ts', '@scaffold:class-id', camel);
 
 insertAtMarker(

@@ -48,7 +48,9 @@ describe('stamina', () => {
 
 describe('calcolo del danno', () => {
   it('mult per classe: 1 / 1.25 / 0.85', () => {
-    expect(CLASSES.map((c) => effectiveMult(c.damageMult, false))).toEqual([1, 1.25, 0.85]);
+    expect(CLASSES.slice(0, 3).map((c) => effectiveMult(c.damageMult, false))).toEqual([
+      1, 1.25, 0.85,
+    ]);
   });
 
   it('MOLA SALSA moltiplica per 1.4', () => {

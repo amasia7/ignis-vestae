@@ -1,4 +1,11 @@
-import { names, insertAtMarker, extendUnion, replaceOnce, writeNew } from './scaffold-utils.mjs';
+import {
+  names,
+  ensureAbsent,
+  insertAtMarker,
+  extendUnion,
+  replaceOnce,
+  writeNew,
+} from './scaffold-utils.mjs';
 
 /**
  * npm run new:boss -- nome-boss
@@ -7,6 +14,7 @@ import { names, insertAtMarker, extendUnion, replaceOnce, writeNew } from './sca
  */
 const { kebab, pascal, camel, upper } = names(process.argv[2]);
 
+ensureAbsent('src/data/bosses.ts', `'${camel}'`, `Il boss "${kebab}"`);
 extendUnion('src/data/bosses.ts', '@scaffold:boss-id', camel);
 
 insertAtMarker(
