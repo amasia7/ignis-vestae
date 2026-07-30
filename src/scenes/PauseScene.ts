@@ -7,8 +7,14 @@ import { T } from '../ui/text';
 
 /** Pausa con ESC sopra la FightScene (novità Fase 8). */
 export class PauseScene extends Phaser.Scene {
+  private target = 'fight';
+
   constructor() {
     super('pause');
+  }
+
+  init(data: { target?: string }): void {
+    this.target = data.target ?? 'fight';
   }
 
   create(): void {
@@ -21,19 +27,19 @@ export class PauseScene extends Phaser.Scene {
 
     const resume = (): void => {
       this.scene.stop();
-      this.scene.resume('fight');
+      this.scene.resume(this.target);
     };
     const k = this.input.keyboard;
     k?.on('keydown-ESC', resume);
     k?.on('keydown-ENTER', resume);
     k?.on('keydown-O', () => {
       this.scene.stop();
-      this.scene.launch('settings', { from: 'pause' });
+      this.scene.launch('settings', { from: 'pause', target: this.target });
     });
     k?.on('keydown-T', () => {
       RUN.endRun();
       this.scene.stop();
-      this.scene.stop('fight'); // spegne anche l'HUD via shutdown
+      this.scene.stop(this.target); // spegne anche l'HUD via shutdown
       this.scene.start('title');
     });
     new GamepadMenu(this, { confirm: resume });

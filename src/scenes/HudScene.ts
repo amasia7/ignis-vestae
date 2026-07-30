@@ -2,36 +2,101 @@ import Phaser from 'phaser';
 import { H, W } from '../config/game.config';
 import { strings } from '../data/i18n';
 import { RUN } from '../core/RunState';
-import { T } from '../ui/text';
-import type { FightScene } from './FightScene';
+import { gameEvents } from '../core/EventBus';
+import { WEAPONS } from '../data/weapons';
+import { actionKeyLabel } from '../input/bindings';
+import { T, textStyle } from '../ui/text';
+import type { Player } from '../entities/Player';
+import type { BossBase } from '../entities/bosses/BossBase';
+import type { TextureKey } from '../art/registry';
+
+/** Ciò che l'HUD chiede alla scena di gioco sottostante (fight o livello). */
+interface GameplayScene extends Phaser.Scene {
+  player: Player;
+  boss: BossBase | null;
+}
 
 /**
- * HUD come scena separata sopra la FightScene: disegna vita, resistenza,
- * ampolle, ricarica abilità e barra del boss (port di drawHud, r. 906-933).
+ * HUD sopra la scena di gioco: barre, ampolle, ricarica abilità, slot arma,
+ * borsa, recap dei controlli sempre visibile in alto a sinistra e barra del
+ * boss quando c'è un boss.
  */
 export class HudScene extends Phaser.Scene {
+  private target = 'fight';
   private gfx!: Phaser.GameObjects.Graphics;
   private abLabel!: Phaser.GameObjects.Text;
   private bossName!: Phaser.GameObjects.Text;
+  private recap!: Phaser.GameObjects.Text;
+  private weaponIcon!: Phaser.GameObjects.Image;
+  private bagLabel!: Phaser.GameObjects.Text;
   private root!: Phaser.GameObjects.Container;
 
   constructor() {
     super('hud');
   }
 
+  init(data: { target?: string }): void {
+    this.target = data.target ?? 'fight';
+  }
+
   create(): void {
+    // l'ordine di registrazione non conta: l'HUD sta sempre sopra il gioco
+    this.scene.bringToTop();
     const s = strings();
     this.gfx = this.add.graphics();
-    this.abLabel = this.add.text(0, 0, s.classes[RUN.classIdx]?.abilityName ?? '', {
-      fontFamily: 'Georgia, serif',
-      fontSize: '10px',
-      color: 'rgba(141,124,92,0.85)',
+    this.abLabel = this.add.text(
+      0,
+      0,
+      s.classes[RUN.classIdx]?.abilityName ?? '',
+      textStyle(10, 'rgba(200,182,140,0.9)'),
+    );
+
+    // recap dei controlli, sempre visibile in alto a sinistra
+    this.recap = this.add.text(22, 84, this.recapText(), {
+      ...textStyle(12, 'rgba(216,201,163,0.8)'),
+      lineSpacing: 4,
     });
-    const fight = this.scene.get('fight') as FightScene;
-    this.bossName = T(this, W / 2, H - 58, strings().bosses[fight.boss.id].name, 15, '#d8c9a3');
-    const arena = T(this, W - 20, 22, s.arenas[RUN.bossIdx] ?? '', 12, 'rgba(141,124,92,0.7)');
+    const offSettings = gameEvents.on('settings:changed', () =>
+      this.recap.setText(this.recapText()),
+    );
+    this.events.once('shutdown', offSettings);
+
+    // slot arma + borsa (a destra della barra della vita)
+    this.weaponIcon = this.add.image(282, 35, WEAPONS[RUN.equippedWeapon].textureKey as TextureKey);
+    this.bagLabel = this.add.text(262, 50, '', textStyle(10, 'rgba(200,182,140,0.9)'));
+
+    const fight = this.scene.get(this.target) as GameplayScene;
+    this.bossName = T(
+      this,
+      W / 2,
+      H - 58,
+      fight.boss ? strings().bosses[fight.boss.id].name : '',
+      15,
+      '#d8c9a3',
+    );
+    const arena = T(this, W - 20, 22, s.arenas[RUN.bossIdx] ?? '', 12, 'rgba(163,146,122,0.85)');
     arena.setOrigin(1, 0.5);
-    this.root = this.add.container(0, 0, [this.gfx, this.abLabel, this.bossName, arena]);
+    this.root = this.add.container(0, 0, [
+      this.gfx,
+      this.abLabel,
+      this.recap,
+      this.weaponIcon,
+      this.bagLabel,
+      this.bossName,
+      arena,
+    ]);
+  }
+
+  /** Righe del recap generate dai binding correnti (si aggiornano rimappando). */
+  private recapText(): string {
+    const s = strings().hud;
+    const k = actionKeyLabel;
+    return [
+      `${k('MOVE_LEFT')} ${k('MOVE_RIGHT')} ${s.move} · ${k('JUMP')} ${s.jump}`,
+      `${k('LIGHT')} ${s.light} · ${k('HEAVY')} ${s.heavy}`,
+      `${k('ROLL')} ${s.roll} · ${k('HEAL')} ${s.heal}`,
+      `${k('ABILITY')} ${s.ability} · ${k('INVENTORY')} ${s.bag}`,
+    ].join('\n');
   }
 
   /** Il gioco sotto si oscura alla morte: l'HUD si attenua in sincrono. */
@@ -40,11 +105,11 @@ export class HudScene extends Phaser.Scene {
   }
 
   update(): void {
-    const fight = this.scene.get('fight') as FightScene | null;
-    if (!fight || !fight.player) return;
+    const scene = this.scene.get(this.target) as GameplayScene | null;
+    if (!scene || !scene.player) return;
     const g = this.gfx;
-    const p = fight.player;
-    const b = fight.boss;
+    const p = scene.player;
+    const b = scene.boss;
     g.clear();
     // vita / resistenza
     g.fillStyle(0x000000, 0.5);
@@ -55,6 +120,14 @@ export class HudScene extends Phaser.Scene {
     g.fillRect(22, 38, 174, 11);
     g.fillStyle(0xb7a24a, 1);
     g.fillRect(24, 40, 170 * Math.max(0, p.stamina.value / p.stamina.max), 7);
+    // slot arma
+    g.fillStyle(0x000000, 0.5);
+    g.fillRoundedRect(258, 20, 48, 30, 4);
+    g.lineStyle(1.5, 0x6d5f3a, 1);
+    g.strokeRoundedRect(258, 20, 48, 30, 4);
+    const weaponKey = WEAPONS[RUN.equippedWeapon].textureKey as TextureKey;
+    if (this.weaponIcon.texture.key !== weaponKey) this.weaponIcon.setTexture(weaponKey);
+    this.bagLabel.setText(RUN.items.length > 0 ? `×${RUN.items.length}` : '');
     // ampolle
     for (let i = 0; i < p.mfl; i++) {
       g.fillStyle(i < p.fl ? 0x7fb7d8 : 0x2a2a33, 1);
@@ -79,7 +152,7 @@ export class HudScene extends Phaser.Scene {
     g.lineStyle(1.5, ready ? 0xc9a227 : 0x4a3c26, 1);
     g.strokeCircle(ax, ay, 11);
     this.abLabel.setPosition(ax + 18, ay - 6);
-    // barra del boss
+    // barra del boss (solo dove c'è un boss)
     if (b && !b.dead) {
       this.bossName.setVisible(true);
       g.fillStyle(0x000000, 0.5);

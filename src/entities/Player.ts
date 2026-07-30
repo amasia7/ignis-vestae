@@ -43,7 +43,6 @@ export class Player {
   readonly stamina: Stamina;
   readonly mfl: number;
   fl: number;
-  readonly mult: number;
   readonly abMax: number;
   abCd = 0;
   haste = 0;
@@ -71,7 +70,6 @@ export class Player {
     this.stamina = new Stamina(c.stamina);
     this.mfl = RUN.maxFlasks(c.flasks);
     this.fl = this.mfl;
-    this.mult = RUN.effectiveMult(c.damageMult);
     this.abMax = c.abilityCooldownMs;
 
     const key = PLAYER_KEYS[this.classIdx] ?? 'pl0';
@@ -164,6 +162,11 @@ export class Player {
 
   get timeInState(): number {
     return this.sm.time;
+  }
+
+  /** mult effettivo: classe × MOLA SALSA × arma in pugno (cambia al volo). */
+  get mult(): number {
+    return RUN.effectiveMult(this.c.damageMult) * RUN.weaponMult();
   }
 
   grounded(): boolean {

@@ -1,5 +1,7 @@
 import type { Action } from '../input/actions';
 import type { BossId } from './bosses';
+import type { WeaponId } from './weapons';
+import type { ItemId } from './items';
 
 /**
  * Forma del bundle di stringhe. Ogni lingua (strings.it.ts oggi, strings.en.ts
@@ -81,6 +83,34 @@ export interface Strings {
     readonly epilogue: string;
     readonly backTouch: string;
     readonly backKey: string;
+  };
+  /** Recap dei controlli sempre visibile nell'HUD (etichette brevi). */
+  readonly hud: {
+    readonly move: string;
+    readonly jump: string;
+    readonly light: string;
+    readonly heavy: string;
+    readonly roll: string;
+    readonly heal: string;
+    readonly ability: string;
+    readonly bag: string;
+  };
+  /** Armi e oggetti (slot arma + borsa). */
+  readonly weapons: Readonly<Record<WeaponId, { readonly name: string; readonly desc: string }>>;
+  readonly items: Readonly<Record<ItemId, { readonly name: string; readonly desc: string }>>;
+  readonly inventory: {
+    readonly title: string;
+    readonly weaponsHeader: string;
+    readonly itemsHeader: string;
+    readonly hint: string;
+    readonly equipped: string;
+    readonly empty: string;
+    readonly picked: string;
+  };
+  /** Livelli intermedi. */
+  readonly level: {
+    readonly goal: string;
+    readonly rest: string;
   };
   /** Novità Fase 8: pausa e impostazioni (non presenti nel legacy). */
   readonly pause: {

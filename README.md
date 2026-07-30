@@ -15,10 +15,16 @@ npm run dev          # gioco su http://localhost:5173
 npm run art:preview  # tutte le texture su griglia, isolate dal gioco
 ```
 
-Comandi in gioco: `A/D` muoversi · `W` salto · `J` colpo · `L` pesante ·
-`K/SPAZIO` schivata · `H` ampolla · `U` abilità · `ESC` pausa. Touch e
-gamepad sono supportati; i tasti sono rimappabili dalle impostazioni (`O`
-dal titolo).
+Comandi in gioco: `◀ ▶` muoversi · `↑` salto · `A` colpo · `Q` pesante ·
+`S` schivata · `H` ampolla · `E` abilità · `I` borsa · `ESC` pausa (il
+recap è sempre visibile in alto a sinistra). Touch e gamepad supportati;
+tasti rimappabili dalle impostazioni (`O` dal titolo).
+
+La run: tre **livelli a scorrimento** con mini-nemici e oggetti da
+raccogliere, ognuno chiuso da un braciere che ristora e apre lo scontro
+col custode. Le **armi sono staccate dal personaggio**: slot dedicato
+nell'HUD, altre armi e oggetti si trovano nei livelli e si gestiscono
+dalla borsa (`I`).
 
 In dev, `F1` in combattimento apre l'overlay di debug (FPS, hitbox, stati,
 salto ai boss, hp del boss). È escluso dalla build di produzione.
@@ -30,6 +36,7 @@ salto ai boss, hp del boss). È escluso dalla build di produzione.
 | `npm run dev` / `build` / `preview`              | dev server, build statica in `dist/`, anteprima della build |
 | `npm run lint` / `format` / `typecheck` / `test` | qualità: ESLint, Prettier, tsc, Vitest                      |
 | `npm run art:preview`                            | anteprima di tutte le texture del manifest                  |
+| `npm run assets:check`                           | valida i PNG in `assets/` contro il manifest (usato in CI)  |
 | `npm run new:boss -- nome-boss`                  | scaffolding: dati + entità + registrazione + texture + test |
 | `npm run new:class -- nome-classe`               | scaffolding: voce classe + testi stub + artwork placeholder |
 | `npm run new:scene -- nome-scena`                | scaffolding: scena + registrazione in main.ts               |
@@ -56,6 +63,9 @@ accettazione in `docs/MIGRATION-PLAN.md`; note su valori dubbi e bug legacy
 in `docs/BALANCE-NOTES.md` e `docs/KNOWN-ISSUES.md`.
 
 ## Sostituire un artwork
+
+Il flusso completo via GitHub (upload → CI che valida → merge → deploy) è
+in `docs/ASSET-PIPELINE.md`. In breve:
 
 1. guarda la chiave in `npm run art:preview` (es. `equus`, 190×120);
 2. crea `assets/equus.png` con le stesse dimensioni;

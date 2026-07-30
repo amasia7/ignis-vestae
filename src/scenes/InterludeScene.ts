@@ -36,14 +36,14 @@ export class InterludeScene extends Phaser.Scene {
             puff(this, W / 2 + (Math.random() * 26 - 13), GROUND - 40, 0xff9a3c, 1, 16, 650);
       },
     });
-    T(this, W / 2, 96, s.interlude.heading, 16, '#8d7c5c').setDepth(2);
+    T(this, W / 2, 96, s.interlude.heading, 17, '#b3a284').setDepth(2);
     T(this, W / 2, 146, relic.title, 40, '#c9a227').setDepth(2);
-    T(this, W / 2, 238, relic.desc, 17, '#c9b98f', {
+    T(this, W / 2, 238, relic.desc, 18, '#e2d5b3', {
       wordWrap: { width: 560 },
       fontStyle: 'italic',
       lineSpacing: 6,
     }).setDepth(2);
-    T(this, W / 2, 352, relic.fx, 15, '#7fb7d8').setDepth(2);
+    T(this, W / 2, 352, relic.fx, 16, '#9fd0ea').setDepth(2);
     const go = T(
       this,
       W / 2,
@@ -61,7 +61,7 @@ export class InterludeScene extends Phaser.Scene {
         beep(300, 0.3, 'sine', 0.05, 150);
         RUN.advance();
         SaveManager.save();
-        this.scene.start(RUN.bossIdx < BOSS_COUNT ? 'fight' : 'victory');
+        this.scene.start(RUN.bossIdx < BOSS_COUNT ? 'level' : 'victory');
       };
       this.input.keyboard?.once('keydown-ENTER', next);
       this.input.once('pointerdown', next);

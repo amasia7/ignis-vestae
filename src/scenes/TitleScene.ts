@@ -26,7 +26,7 @@ export class TitleScene extends Phaser.Scene {
       .setDepth(2);
     T(this, W / 2, 168, s.title.logo, 58, '#c9a227').setDepth(2);
     T(this, W / 2, 208, s.title.subtitle, 18, '#8d7c5c').setDepth(2);
-    T(this, W / 2, 234, s.title.tagline, 14, '#6d6048').setDepth(2);
+    T(this, W / 2, 234, s.title.tagline, 14, '#8d7c5c').setDepth(2);
     const go = T(
       this,
       W / 2,
@@ -37,8 +37,8 @@ export class TitleScene extends Phaser.Scene {
     ).setDepth(2);
     this.tweens.add({ targets: go, alpha: 0.15, duration: 600, yoyo: true, repeat: -1 });
     if (!IS_TOUCH) {
-      T(this, W / 2, H - 84, s.title.hintControls, 13, '#7d6f57').setDepth(2);
-      T(this, W / 2, H - 62, s.title.hintRoll, 13, '#7d6f57').setDepth(2);
+      T(this, W / 2, H - 84, s.title.hintControls, 14, '#a3927a').setDepth(2);
+      T(this, W / 2, H - 62, s.title.hintRoll, 14, '#a3927a').setDepth(2);
     }
     this.time.addEvent({
       delay: 130,
@@ -68,7 +68,7 @@ export class TitleScene extends Phaser.Scene {
       this.input.keyboard?.on('keydown-C', () => {
         initAudio();
         beep(300, 0.2, 'sine', 0.05, 80);
-        this.scene.start('fight');
+        this.scene.start('level');
       });
     }
     T(this, W / 2, 388, s.title.settingsHint, 12, '#6d6048').setDepth(2);

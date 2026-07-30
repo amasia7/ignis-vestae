@@ -1,4 +1,6 @@
 import { BOSS_COUNT } from '../data/bosses';
+import { CLASS_WEAPONS, WEAPONS, type WeaponId } from '../data/weapons';
+import type { ItemId } from '../data/items';
 import { effectiveMult, maxFlasks } from './combat';
 
 export { BOSS_COUNT };
@@ -16,18 +18,56 @@ export class RunState {
   relics: boolean[] = noRelics();
   /** Best time per boss in ms (novità Fase 8; null = mai battuto). */
   bestTimesMs: (number | null)[] = new Array<number | null>(BOSS_COUNT).fill(null);
+  /** Inventario della run: armi possedute, arma in pugno, borsa oggetti. */
+  weapons: WeaponId[] = [CLASS_WEAPONS[0] ?? 'secespita'];
+  equippedWeapon: WeaponId = CLASS_WEAPONS[0] ?? 'secespita';
+  items: ItemId[] = [];
 
   /** Selezione classe confermata (legacy Select.confirm, r. 759). */
   startRun(classIdx: number): void {
     this.classIdx = classIdx;
     this.bossIdx = 0;
     this.relics = noRelics();
+    this.resetInventory();
   }
 
   /** Vittoria: torna al titolo mantenendo la classe (legacy r. 980). */
   endRun(): void {
     this.bossIdx = 0;
     this.relics = noRelics();
+    this.resetInventory();
+  }
+
+  /* ---- inventario ---- */
+
+  resetInventory(): void {
+    const base = CLASS_WEAPONS[this.classIdx] ?? 'secespita';
+    this.weapons = [base];
+    this.equippedWeapon = base;
+    this.items = [];
+  }
+
+  addWeapon(id: WeaponId): boolean {
+    if (this.weapons.includes(id)) return false;
+    this.weapons.push(id);
+    return true;
+  }
+
+  equipWeapon(id: WeaponId): void {
+    if (this.weapons.includes(id)) this.equippedWeapon = id;
+  }
+
+  addItem(id: ItemId): void {
+    this.items.push(id);
+  }
+
+  removeItem(index: number): void {
+    this.items.splice(index, 1);
+  }
+
+  /** Moltiplicatore dell'arma in pugno (1 per le armi di classe legacy). */
+  weaponMult(): number {
+    return WEAPONS[this.equippedWeapon].damageMult;
   }
 
   grantRelic(bossIdx: number): void {

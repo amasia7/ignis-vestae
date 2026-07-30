@@ -7,7 +7,7 @@ import { SaveManager } from '../core/SaveManager';
 import { IS_TOUCH } from '../input/device';
 import { GamepadMenu } from '../input/GamepadMenu';
 import { beep } from '../fx/audio';
-import { T } from '../ui/text';
+import { T, textStyle } from '../ui/text';
 import type { TextureKey } from '../art/registry';
 
 const CARD_X0 = 38;
@@ -30,7 +30,7 @@ export class SelectScene extends Phaser.Scene {
     const s = strings();
     this.cameras.main.setBackgroundColor(MENU_BG_COLOR);
     T(this, W / 2, 56, s.select.heading, 30, '#c9a227');
-    T(this, W / 2, 88, IS_TOUCH ? s.select.hintTouch : s.select.hintKeys, 13, '#7d6f57');
+    T(this, W / 2, 88, IS_TOUCH ? s.select.hintTouch : s.select.hintKeys, 14, '#a3927a');
     this.sel = RUN.classIdx;
     this.cards = [];
 
@@ -59,9 +59,9 @@ export class SelectScene extends Phaser.Scene {
         .image(x0 + CARD_W / 2 + 20, CARD_Y0 + 112 - 30, `wp${i}` as TextureKey)
         .setOrigin(0.12, 0.5)
         .setRotation(-0.25);
-      T(this, x0 + CARD_W / 2, CARD_Y0 + 150, cs.name, 16, '#a89877');
-      T(this, x0 + CARD_W / 2, CARD_Y0 + 170, cs.sub, 12, '#8d7c5c');
-      T(this, x0 + CARD_W / 2, CARD_Y0 + 206, cs.desc, 13, '#c9b98f', {
+      T(this, x0 + CARD_W / 2, CARD_Y0 + 150, cs.name, 17, '#c9b890');
+      T(this, x0 + CARD_W / 2, CARD_Y0 + 171, cs.sub, 13, '#a3927a');
+      T(this, x0 + CARD_W / 2, CARD_Y0 + 208, cs.desc, 14, '#e2d5b3', {
         wordWrap: { width: CARD_W - 34 },
         fontStyle: 'italic',
       });
@@ -74,11 +74,7 @@ export class SelectScene extends Phaser.Scene {
       const sg = this.add.graphics();
       stats.forEach(([nm, v, mx], j) => {
         const sy = CARD_Y0 + 252 + j * 23;
-        this.add.text(x0 + 18, sy, nm, {
-          fontFamily: 'Georgia, serif',
-          fontSize: '10px',
-          color: '#8d7c5c',
-        });
+        this.add.text(x0 + 18, sy, nm, textStyle(11, '#b3a284'));
         sg.fillStyle(0x000000, 0.5);
         sg.fillRect(x0 + 106, sy + 1, CARD_W - 126, 7);
         sg.fillStyle(0x6d5f3a, 1);
@@ -89,10 +85,10 @@ export class SelectScene extends Phaser.Scene {
         x0 + CARD_W / 2,
         CARD_Y0 + 352,
         s.select.abilityPrefix + cs.abilityName,
-        13,
-        '#7fb7d8',
+        14,
+        '#8fc5e8',
       );
-      T(this, x0 + CARD_W / 2, CARD_Y0 + 371, cs.abilityDesc, 11, 'rgba(127,183,216,0.75)', {
+      T(this, x0 + CARD_W / 2, CARD_Y0 + 372, cs.abilityDesc, 12, 'rgba(159,208,234,0.95)', {
         wordWrap: { width: CARD_W - 30 },
         fontStyle: 'italic',
       });
@@ -103,11 +99,9 @@ export class SelectScene extends Phaser.Scene {
     this.pick(this.sel, true);
     const k = this.input.keyboard;
     k?.on('keydown-LEFT', () => this.pick((this.sel + CLASSES.length - 1) % CLASSES.length));
-    k?.on('keydown-A', () => this.pick((this.sel + CLASSES.length - 1) % CLASSES.length));
     k?.on('keydown-RIGHT', () => this.pick((this.sel + 1) % CLASSES.length));
-    k?.on('keydown-D', () => this.pick((this.sel + 1) % CLASSES.length));
     k?.on('keydown-ENTER', () => this.confirm());
-    k?.on('keydown-J', () => this.confirm());
+    k?.on('keydown-A', () => this.confirm()); // A = colpo leggero, conferma anche qui
     new GamepadMenu(this, {
       left: () => this.pick((this.sel + CLASSES.length - 1) % CLASSES.length),
       right: () => this.pick((this.sel + 1) % CLASSES.length),

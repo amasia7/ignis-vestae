@@ -21,11 +21,11 @@ export class LoreScene extends Phaser.Scene {
     this.page = 0;
     this.texts = [];
     this.showPage();
-    T(this, W / 2, H - 70, IS_TOUCH ? s.lore.nextTouch : s.lore.nextKey, 15, '#6d6048');
+    T(this, W / 2, H - 70, IS_TOUCH ? s.lore.nextTouch : s.lore.nextKey, 16, '#9d8d70');
     const next = (): void => {
       beep(180, 0.1, 'sine', 0.04, 40);
       this.page++;
-      if (this.page >= s.lore.pages.length) this.scene.start('fight');
+      if (this.page >= s.lore.pages.length) this.scene.start('level');
       else this.showPage();
     };
     this.input.keyboard?.on('keydown-ENTER', next);
@@ -38,7 +38,7 @@ export class LoreScene extends Phaser.Scene {
     this.texts = [];
     const page = strings().lore.pages[this.page] ?? [];
     page.forEach((line, i) => {
-      const t = T(this, W / 2, H / 2 - 70 + i * 34, line, 20, '#c9b98f').setAlpha(0);
+      const t = T(this, W / 2, H / 2 - 74 + i * 38, line, 23, '#e2d5b3').setAlpha(0);
       this.tweens.add({ targets: t, alpha: 1, duration: 400, delay: i * 120 });
       this.texts.push(t);
     });

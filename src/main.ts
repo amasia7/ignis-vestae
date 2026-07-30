@@ -10,6 +10,8 @@ import { FightScene } from './scenes/FightScene';
 import { HudScene } from './scenes/HudScene';
 import { InterludeScene } from './scenes/InterludeScene';
 import { VictoryScene } from './scenes/VictoryScene';
+import { LevelScene } from './scenes/LevelScene';
+import { InventoryScene } from './scenes/InventoryScene';
 import { PauseScene } from './scenes/PauseScene';
 import { SettingsScene } from './scenes/SettingsScene';
 // @scaffold:scene-import
@@ -46,6 +48,8 @@ const game = new Phaser.Game({
     HudScene,
     InterludeScene,
     VictoryScene,
+    LevelScene,
+    InventoryScene,
     PauseScene,
     SettingsScene,
     // @scaffold:scene-list

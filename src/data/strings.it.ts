@@ -21,8 +21,9 @@ export const STRINGS_IT: Strings = {
     tagline: 'un souls-like delle Vestali',
     startTouch: '—  TOCCA  LO  SCHERMO  —',
     startKey: '—  PREMI  INVIO  —',
+    // aggiornato ai nuovi comandi richiesti (frecce + A/S/Q/E)
     hintControls:
-      'A/D muoversi · W salto · J colpo · L pesante · K/SPAZIO schivata · H ampolla · U abilità',
+      '◀ ▶ muoversi · ↑ salto · A colpo · Q pesante · S schivata · H ampolla · E abilità · I borsa',
     hintRoll: 'La schivata attraversa gli attacchi. La resistenza governa ogni gesto.',
     // novità Fase 8
     continuePrefix: 'C  —  riprendi il rito: ',
@@ -157,6 +158,59 @@ export const STRINGS_IT: Strings = {
     backKey: '—  INVIO: torna al titolo  —',
   },
 
+  // recap dei controlli nell'HUD (etichette brevi)
+  hud: {
+    move: 'muoversi',
+    jump: 'salto',
+    light: 'colpo',
+    heavy: 'pesante',
+    roll: 'schivata',
+    heal: 'ampolla',
+    ability: 'abilità',
+    bag: 'borsa',
+  },
+
+  // armi e oggetti
+  weapons: {
+    secespita: {
+      name: 'SECESPITA',
+      desc: 'Il coltello sacrificale delle Vestali. Conosce la carne e il rito.',
+    },
+    spatha: {
+      name: 'SPATHA',
+      desc: 'La lama lunga del guerriero sacrilego. Pesante di colpe.',
+    },
+    lituus: {
+      name: 'LITUUS',
+      desc: 'Il bastone ricurvo degli àuguri. Scrive presagi nell’aria.',
+    },
+    gladius: {
+      name: 'GLADIO CONSACRATO',
+      desc: 'Ferro di legionario, cosparso di mola salsa. Morde più a fondo.',
+    },
+  },
+  items: {
+    balsamo: {
+      name: 'BALSAMO DI EGERIA',
+      desc: 'Unguento della ninfa delle fonti. Usalo per rimarginare le ferite.',
+    },
+  },
+  inventory: {
+    title: 'BORSA',
+    weaponsHeader: 'ARMI',
+    itemsHeader: 'OGGETTI',
+    hint: '↑ ↓ scegliere · INVIO equipaggia / usa · I o ESC per chiudere',
+    equipped: 'in pugno',
+    empty: 'La borsa è vuota.',
+    picked: 'RACCOLTO',
+  },
+
+  // livelli intermedi
+  level: {
+    goal: 'Avanza verso il braciere  ▸',
+    rest: 'INVIO: riposa al braciere e affronta il custode',
+  },
+
   // novità Fase 8: pausa e impostazioni
   pause: {
     title: 'PAUSA',
@@ -181,6 +235,7 @@ export const STRINGS_IT: Strings = {
       ROLL: 'schivata',
       HEAL: 'ampolla',
       ABILITY: 'abilità',
+      INVENTORY: 'borsa',
       CONFIRM: 'conferma',
       PAUSE: 'pausa',
     },

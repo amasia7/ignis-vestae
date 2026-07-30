@@ -8,6 +8,7 @@ export type Action =
   | 'ROLL'
   | 'HEAL'
   | 'ABILITY'
+  | 'INVENTORY'
   | 'CONFIRM'
   | 'PAUSE';
 
@@ -20,6 +21,7 @@ export const ACTIONS: readonly Action[] = [
   'ROLL',
   'HEAL',
   'ABILITY',
+  'INVENTORY',
   'CONFIRM',
   'PAUSE',
 ];

@@ -7,6 +7,8 @@ import { equus } from './generated/equus';
 import { ghost, hand } from './generated/cornelia';
 import { statue } from './generated/palladio';
 import { spear, brazier } from './generated/props';
+import { gladius, balsamo } from './generated/pickups';
+import { shade, larva } from './generated/enemies';
 
 /**
  * Manifest delle texture: chiave → dimensioni, origine, generatore.
@@ -36,6 +38,10 @@ export const TEXTURES = {
   warn: { size: [76, 18], origin: [0.5, 0.5], generator: warn },
   flameglow: { size: [60, 18], origin: [0.5, 0.5], generator: flameglow },
   brazier: { size: [72, 40], origin: [0.5, 1], generator: brazier },
+  wp3: { size: [44, 12], origin: [0.12, 0.5], generator: gladius },
+  balsamo: { size: [20, 20], origin: [0.5, 0.5], generator: balsamo },
+  shade: { size: [40, 64], origin: [0.5, 1], generator: shade },
+  larva: { size: [36, 22], origin: [0.5, 1], generator: larva },
   // @scaffold:texture — new:boss e new:class inseriscono qui
 } as const satisfies Record<string, TextureEntry>;
 

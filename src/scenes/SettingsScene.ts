@@ -19,6 +19,7 @@ type Row =
 /** Impostazioni: volume, shake, rimappatura tasti, reset (novità Fase 8). */
 export class SettingsScene extends Phaser.Scene {
   private from = 'title';
+  private pauseTarget = 'fight';
   private rows: Row[] = [];
   private cursor = 0;
   private labels: Phaser.GameObjects.Text[] = [];
@@ -30,8 +31,9 @@ export class SettingsScene extends Phaser.Scene {
     super('settings');
   }
 
-  init(data: { from?: string }): void {
+  init(data: { from?: string; target?: string }): void {
     this.from = data.from ?? 'title';
+    this.pauseTarget = data.target ?? 'fight';
   }
 
   create(): void {
@@ -200,7 +202,7 @@ export class SettingsScene extends Phaser.Scene {
 
   private close(): void {
     this.scene.stop();
-    if (this.from === 'pause') this.scene.launch('pause');
+    if (this.from === 'pause') this.scene.launch('pause', { target: this.pauseTarget });
     else this.scene.resume('title');
   }
 }

@@ -1,9 +1,8 @@
 import Phaser from 'phaser';
 import { puff } from '../fx/particles';
-import type { TextureKey } from '../art/registry';
+import { RUN } from '../core/RunState';
+import { WEAPONS } from '../data/weapons';
 import type { Player } from './Player';
-
-const WEAPON_KEYS: readonly TextureKey[] = ['wp0', 'wp1', 'wp2' /* @scaffold:weapon-key */];
 
 /**
  * Arma del player: posa per stato e fx del fendente.
@@ -13,13 +12,18 @@ export class PlayerWeapon {
   private img: Phaser.GameObjects.Image;
   private scene: Phaser.Scene;
 
-  constructor(scene: Phaser.Scene, classIdx: number, x: number, y: number) {
+  constructor(scene: Phaser.Scene, _classIdx: number, x: number, y: number) {
     this.scene = scene;
-    const key = WEAPON_KEYS[classIdx] ?? 'wp0';
     this.img = scene.add
-      .image(x, y - 34, key)
+      .image(x, y - 34, WEAPONS[RUN.equippedWeapon].textureKey)
       .setOrigin(0.12, 0.5)
       .setDepth(5);
+  }
+
+  /** L'arma può cambiare dalla borsa anche a metà scena. */
+  private syncTexture(): void {
+    const key = WEAPONS[RUN.equippedWeapon].textureKey;
+    if (this.img.texture.key !== key) this.img.setTexture(key);
   }
 
   slashFx(player: Player, scale: number): void {
@@ -40,6 +44,7 @@ export class PlayerWeapon {
   }
 
   pose(player: Player): void {
+    this.syncTexture();
     const s = player.spr;
     const f = player.face;
     const w = this.img;

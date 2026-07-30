@@ -47,7 +47,7 @@ export class VictoryScene extends Phaser.Scene {
       .setDepth(2)
       .setAlpha(0);
     this.tweens.add({ targets: t1, alpha: 1, duration: 1400, delay: 1200 });
-    const t2 = T(this, W / 2, 232, s.victory.epilogue, 18, '#c9b98f', { lineSpacing: 9 })
+    const t2 = T(this, W / 2, 232, s.victory.epilogue, 19, '#e2d5b3', { lineSpacing: 10 })
       .setDepth(2)
       .setAlpha(0);
     this.tweens.add({ targets: t2, alpha: 1, duration: 1400, delay: 2600 });

@@ -17,6 +17,7 @@ const BUTTON_ACTIONS: ReadonlyArray<readonly [number, Action]> = [
   [7, 'ABILITY'], // RT
   [6, 'ABILITY'], // LT
   [9, 'PAUSE'], // Start
+  [8, 'INVENTORY'], // Select/Back
 ];
 
 export class GamepadSource implements InputSource {

@@ -1,8 +1,13 @@
 import Phaser from 'phaser';
 import { W } from '../../config/game.config';
-import { ABILITIES, HAZARDS } from '../../config/balance';
+import { HAZARDS } from '../../config/balance';
 import { puff } from '../../fx/particles';
-import type { BossBase } from '../bosses/BossBase';
+
+/** Qualunque cosa il dardo possa colpire (boss o nemico dei livelli). */
+export interface BoltTarget {
+  rect(): Phaser.Geom.Rectangle;
+  readonly dead: boolean;
+}
 
 /** Dardo di FIAMMA VOTIVA (legacy r. 822-823, 889-896). Danno 26·mult. */
 export class Bolt {
@@ -22,15 +27,14 @@ export class Bolt {
   }
 
   /**
-   * @param dmgBoss callback della scena (applica flash, morte, reliquia)
+   * @param onHit callback della scena sul primo bersaglio colpito
    * @returns false quando il dardo va rimosso.
    */
-  update(
+  update<T extends BoltTarget>(
     dt: number,
     scene: Phaser.Scene,
-    boss: BossBase | null,
-    playerMult: number,
-    dmgBoss: (dmg: number) => void,
+    targets: readonly T[],
+    onHit: (target: T) => void,
   ): boolean {
     this.x += (this.vx * dt) / 1000;
     this.img.x = this.x;
@@ -45,10 +49,12 @@ export class Bolt {
         220,
       );
     let gone = false;
-    if (boss && !boss.dead && Phaser.Geom.Rectangle.Contains(boss.rect(), this.x, this.y)) {
-      dmgBoss(ABILITIES.cast.boltDamage * playerMult);
+    for (const t of targets) {
+      if (t.dead || !Phaser.Geom.Rectangle.Contains(t.rect(), this.x, this.y)) continue;
+      onHit(t);
       puff(scene, this.x, this.y, 0xffb347, 12, 60, 340);
       gone = true;
+      break;
     }
     const m = HAZARDS.bolt.despawnMargin;
     if (gone || this.x < m || this.x > W - m) {

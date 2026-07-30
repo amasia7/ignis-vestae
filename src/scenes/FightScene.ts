@@ -9,7 +9,6 @@ import { InputManager } from '../input/InputManager';
 import { KeyboardSource } from '../input/KeyboardSource';
 import { VirtualPad } from '../input/VirtualPad';
 import { GamepadSource } from '../input/GamepadSource';
-import { IS_TOUCH } from '../input/device';
 import { Player, type CombatHost } from '../entities/Player';
 import { BossBase, type BossHost } from '../entities/bosses/BossBase';
 import { BOSS_MAKERS } from '../entities/bosses';
@@ -18,6 +17,7 @@ import { Spear } from '../entities/hazards/Spear';
 import { Wave } from '../entities/hazards/Wave';
 import { Bolt } from '../entities/hazards/Bolt';
 import { circHitPlayer, rectHitPlayer } from '../entities/hitTests';
+import { showDeathOverlay } from '../ui/deathOverlay';
 import { beep } from '../fx/audio';
 import { puff, ringFx } from '../fx/particles';
 import { shake } from '../fx/screenShake';
@@ -178,35 +178,14 @@ export class FightScene extends Phaser.Scene implements CombatHost, BossHost {
   onPlayerDeath(): void {
     this.over = true;
     this.retryArmed = false;
-    beep(60, 0.8, 'sawtooth', 0.07, -30);
-    const dark = this.add.rectangle(W / 2, H / 2, W, H, 0x000000, 0).setDepth(12);
-    this.tweens.add({ targets: dark, fillAlpha: 0.75, duration: 900 });
-    // l'HUD è una scena sopra: si attenua come farebbe sotto il velo nero
-    const hud = this.scene.get('hud') as { dim?: (a: number, d: number) => void };
-    hud.dim?.(0.25, 900);
-    const deathText = strings().classes[this.player.classIdx]?.death ?? '';
-    const t = T(this, W / 2, H / 2, deathText, 52, '#8e2f2f')
-      .setDepth(13)
-      .setAlpha(0);
-    this.tweens.add({ targets: t, alpha: 1, duration: 700, delay: 500 });
-    this.time.delayedCall(1200, () => {
-      const s = strings();
-      T(
-        this,
-        W / 2,
-        H / 2 + 48,
-        IS_TOUCH ? s.fight.retryTouch : s.fight.retryKey,
-        15,
-        '#8d7c5c',
-      ).setDepth(13);
-      const again = (): void => {
-        this.scene.restart();
-      };
-      this.retryArmed = true; // abilita anche il retry da gamepad (CONFIRM)
-      this.input.keyboard?.once('keydown-ENTER', again);
-      this.input.keyboard?.once('keydown-R', again);
-      this.input.once('pointerdown', again);
-    });
+    showDeathOverlay(
+      this,
+      this.player.classIdx,
+      () => this.scene.restart(),
+      () => {
+        this.retryArmed = true; // abilita anche il retry da gamepad (CONFIRM)
+      },
+    );
   }
 
   update(_time: number, dtRaw: number): void {
@@ -215,7 +194,13 @@ export class FightScene extends Phaser.Scene implements CombatHost, BossHost {
 
     // pausa con ESC o Start del gamepad (novità Fase 8)
     if (!this.over && this.controls.justPressed('PAUSE')) {
-      this.scene.launch('pause');
+      this.scene.launch('pause', { target: 'fight' });
+      this.scene.pause();
+      return;
+    }
+    // borsa con I (o Select del gamepad)
+    if (!this.over && this.controls.justPressed('INVENTORY')) {
+      this.scene.launch('inventory', { from: 'fight' });
       this.scene.pause();
       return;
     }
@@ -261,7 +246,9 @@ export class FightScene extends Phaser.Scene implements CombatHost, BossHost {
     this.spears = this.spears.filter((s) => s.update(dt, this.player, this.over));
     this.waves = this.waves.filter((w) => w.update(dt, this, this.player, this.over));
     this.bolts = this.bolts.filter((p) =>
-      p.update(dt, this, b, this.player.mult, (dmg) => this.dmgBoss(dmg)),
+      p.update(dt, this, b.dead ? [] : [b], () =>
+        this.dmgBoss(ABILITIES.cast.boltDamage * this.player.mult),
+      ),
     );
 
     // colpi in mischia (r. 897-903)

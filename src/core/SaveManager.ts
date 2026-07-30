@@ -1,4 +1,6 @@
 import { BOSS_COUNT, RUN } from './RunState';
+import type { WeaponId } from '../data/weapons';
+import type { ItemId } from '../data/items';
 import { DEFAULT_SETTINGS, applySettings, settings, type SettingsData } from './settings';
 
 /**
@@ -15,6 +17,9 @@ interface SaveData {
   bossIdx: number;
   relics: boolean[];
   bestTimesMs: (number | null)[];
+  weapons?: WeaponId[];
+  equippedWeapon?: WeaponId;
+  items?: ItemId[];
   settings: SettingsData;
 }
 
@@ -41,6 +46,11 @@ export const SaveManager = {
       if (Array.isArray(data.relics)) RUN.relics = data.relics.map(Boolean);
       if (Array.isArray(data.bestTimesMs))
         RUN.bestTimesMs = data.bestTimesMs.map((t) => (typeof t === 'number' ? t : null));
+      if (Array.isArray(data.weapons) && data.weapons.length > 0) {
+        RUN.weapons = [...data.weapons];
+        RUN.equippedWeapon = data.equippedWeapon ?? data.weapons[0]!;
+      } else RUN.resetInventory();
+      if (Array.isArray(data.items)) RUN.items = [...data.items];
       if (data.settings) applySettings(data.settings);
     } catch {
       /* salvataggio corrotto: si riparte puliti */
@@ -57,6 +67,9 @@ export const SaveManager = {
         bossIdx: RUN.bossIdx,
         relics: [...RUN.relics],
         bestTimesMs: [...RUN.bestTimesMs],
+        weapons: [...RUN.weapons],
+        equippedWeapon: RUN.equippedWeapon,
+        items: [...RUN.items],
         settings: { ...settings, bindings: { ...settings.bindings } },
       };
       s.setItem(KEY, JSON.stringify(data));
@@ -72,6 +85,7 @@ export const SaveManager = {
     RUN.bossIdx = 0;
     RUN.relics = new Array<boolean>(BOSS_COUNT).fill(false);
     RUN.bestTimesMs = new Array<number | null>(BOSS_COUNT).fill(null);
+    RUN.resetInventory();
     applySettings(DEFAULT_SETTINGS);
   },
 
