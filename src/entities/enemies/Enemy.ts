@@ -81,6 +81,16 @@ export class Enemy {
     if (this.dead) return;
     this.hp -= dmg;
     this.flashT = 90;
+    // reazione al colpo: arretra e si contrae — il colpo deve "sentirsi"
+    const px = this.host.player.spr.x;
+    this.x = Math.max(this.minX, Math.min(this.maxX, this.x + (this.x < px ? -7 : 7)));
+    this.scene.tweens.add({
+      targets: this.img,
+      scaleX: 1.12,
+      scaleY: 0.86,
+      duration: 60,
+      yoyo: true,
+    });
     puff(this.scene, this.x, this.groundY - this.data.hurtbox.h / 2, 0xffd27a, 6, 40, 260);
     if (this.hp <= 0) {
       this.dead = true;

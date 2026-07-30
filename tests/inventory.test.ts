@@ -88,8 +88,8 @@ describe('oggetti nella borsa', () => {
 });
 
 describe('mondi e cammini (rework: platforming, guerrieri e arcieri)', () => {
-  it('3 mondi × 3 mini livelli con piattaforme e ostacoli', () => {
-    expect(WORLD_COUNT).toBe(3);
+  it('si parte piccoli: UN mondo con 3 mini livelli, piattaforme e ostacoli', () => {
+    expect(WORLD_COUNT).toBe(1);
     expect(LEVELS_PER_WORLD).toBe(3);
     for (let w = 0; w < WORLD_COUNT; w++) {
       let prevWidth = 0;
@@ -118,7 +118,7 @@ describe('mondi e cammini (rework: platforming, guerrieri e arcieri)', () => {
       }
   });
 
-  it('i mondi successivi aggiungono rinforzi', () => {
+  it('i mondi futuri (quando riaperti) aggiungeranno rinforzi', () => {
     expect(levelSpec(1, 0).enemies.length).toBeGreaterThan(levelSpec(0, 0).enemies.length);
     expect(levelSpec(2, 0).enemies.length).toBeGreaterThan(levelSpec(1, 0).enemies.length);
   });

@@ -50,6 +50,8 @@ export class LevelScene extends Phaser.Scene implements CombatHost, EnemyHost {
   private world = 0;
   private levelIdx = 0;
   private isReplay = false;
+  /** Micro-pausa d'impatto (hit-stop). */
+  private hitstop = 0;
   private brazierX = 0;
   private resting = false;
   private retryArmed = false;
@@ -114,6 +116,9 @@ export class LevelScene extends Phaser.Scene implements CombatHost, EnemyHost {
     this.controls.addSource(new MouseSource(this));
     const offSettings = gameEvents.on('settings:changed', () => this.keyboardSource.rebuild());
     this.events.once('shutdown', offSettings);
+    this.hitstop = 0;
+    const offHurt = gameEvents.on('player:hurt', () => (this.hitstop = 70));
+    this.events.once('shutdown', offHurt);
 
     this.player = new Player(this, this);
     this.cameras.main.startFollow(this.player.spr, true, 0.12, 0.12);
@@ -216,8 +221,18 @@ export class LevelScene extends Phaser.Scene implements CombatHost, EnemyHost {
   /* --- update --- */
 
   update(_time: number, dtRaw: number): void {
+    // hit-stop: il mondo si congela per qualche frame sull'impatto
+    if (this.hitstop > 0) {
+      this.hitstop -= dtRaw;
+      return;
+    }
     const dt = Math.min(dtRaw, FIGHT.dtClampMs);
     this.controls.update();
+
+    // la camera guarda avanti nella direzione di marcia
+    const cam = this.cameras.main;
+    // followOffset è sottratto: negativo = inquadra più spazio davanti
+    cam.followOffset.x += (-this.player.face * 70 - cam.followOffset.x) * Math.min(1, dt / 260);
 
     if (!this.over && this.controls.justPressed('PAUSE')) {
       this.scene.launch('pause', { target: 'level' });
@@ -296,6 +311,7 @@ export class LevelScene extends Phaser.Scene implements CombatHost, EnemyHost {
         for (const e of alive) {
           if (Phaser.Geom.Rectangle.Overlaps(a.rect, e.rect())) {
             this.player.registerHit();
+            this.hitstop = 45;
             e.takeDamage(a.damage);
             puff(this, e.x, GROUND - 40, 0xffd27a, 10, 60, 320);
             beep(500, 0.06, 'square', 0.05, -300);

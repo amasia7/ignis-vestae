@@ -13,7 +13,13 @@ import type { BuffId } from './buffs';
  * aggiungono nemici extra in modo deterministico. Per introdurre nemici medi
  * o élite in livelli futuri basta una voce in ENEMIES e uno spawn qui.
  */
-export const WORLD_COUNT = 3;
+/**
+ * Il gioco PARTE volutamente piccolo: UN mondo — 3 mini livelli e il suo
+ * custode (Equus October). I layout scalano già su più mondi e i dati di
+ * Cornelia e del Palladio restano pronti: per riaprire i mondi successivi
+ * basta alzare questo numero.
+ */
+export const WORLD_COUNT = 1;
 export const LEVELS_PER_WORLD = 3;
 
 export interface LevelSpawn {

@@ -37,6 +37,8 @@ export class FightScene extends Phaser.Scene implements CombatHost, BossHost {
   fightTimeMs = 0;
 
   private winT = 0;
+  /** Micro-pausa d'impatto (hit-stop): dà peso ai colpi dati e subiti. */
+  private hitstop = 0;
   private controls!: InputManager;
   private keyboardSource!: KeyboardSource;
   private retryArmed = false;
@@ -77,6 +79,9 @@ export class FightScene extends Phaser.Scene implements CombatHost, BossHost {
     // rimappature fatte dalle impostazioni in pausa: ricostruisci i tasti
     const offSettings = gameEvents.on('settings:changed', () => this.keyboardSource.rebuild());
     this.events.once('shutdown', offSettings);
+    this.hitstop = 0;
+    const offHurt = gameEvents.on('player:hurt', () => (this.hitstop = 70));
+    this.events.once('shutdown', offHurt);
 
     // debug overlay solo in dev: il modulo non entra nella build di produzione
     if (import.meta.env.DEV) {
@@ -222,6 +227,11 @@ export class FightScene extends Phaser.Scene implements CombatHost, BossHost {
   }
 
   update(_time: number, dtRaw: number): void {
+    // hit-stop: il mondo si congela per qualche frame sull'impatto
+    if (this.hitstop > 0) {
+      this.hitstop -= dtRaw;
+      return;
+    }
     const dt = Math.min(dtRaw, FIGHT.dtClampMs);
     this.controls.update();
 
@@ -289,6 +299,7 @@ export class FightScene extends Phaser.Scene implements CombatHost, BossHost {
     const a = this.player.attackBox();
     if (a && b && !b.dead && Phaser.Geom.Rectangle.Overlaps(a.rect, b.rect())) {
       this.player.registerHit();
+      this.hitstop = 55;
       this.dmgBoss(a.damage);
       puff(
         this,

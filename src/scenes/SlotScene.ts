@@ -2,8 +2,8 @@ import Phaser from 'phaser';
 import { H, W } from '../config/game.config';
 import { strings } from '../data/i18n';
 import { SaveManager, SLOT_COUNT } from '../core/SaveManager';
-import { RUN, BOSS_COUNT } from '../core/RunState';
-import { LEVELS_PER_WORLD, roman } from '../data/worlds';
+import { RUN } from '../core/RunState';
+import { LEVELS_PER_WORLD, WORLD_COUNT, roman } from '../data/worlds';
 import { GamepadMenu } from '../input/GamepadMenu';
 import { beep } from '../fx/audio';
 import { T } from '../ui/text';
@@ -69,12 +69,12 @@ export class SlotScene extends Phaser.Scene {
     const head = `${s.slots.slot} ${roman(i + 1)}`;
     if (!sum.exists) return `${head}  —  ${s.slots.empty}`;
     const cls = s.classes[sum.classIdx]?.name ?? '';
-    const world = Math.min(sum.bossIdx, BOSS_COUNT - 1);
+    const world = Math.min(sum.bossIdx, WORLD_COUNT - 1);
     const spot =
       sum.levelIdx >= LEVELS_PER_WORLD
         ? (s.bosses[(['equus', 'cornelia', 'palladio'] as const)[world]!]?.name ?? '')
         : `${s.levelSelect.path} ${roman(sum.levelIdx + 1)}`;
-    return `${head}  —  ${cls} · ${s.levelSelect.world} ${roman(world + 1)} · ${spot} · ✦ ${sum.relics}/${BOSS_COUNT}`;
+    return `${head}  —  ${cls} · ${s.levelSelect.world} ${roman(world + 1)} · ${spot} · ✦ ${sum.relics}/${WORLD_COUNT}`;
   }
 
   private pick(i: number, silent = false): void {

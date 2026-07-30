@@ -177,6 +177,6 @@ export const SaveManager = {
 
   /** C'è una run da riprendere nello slot attivo (in RUN)? */
   hasRunInProgress(): boolean {
-    return RUN.bossIdx < BOSS_COUNT;
+    return !RUN.isComplete;
   },
 };

@@ -173,7 +173,8 @@ export class RunState {
   }
 
   get isComplete(): boolean {
-    return this.bossIdx >= BOSS_COUNT;
+    // la run copre i mondi ATTIVI (WORLD_COUNT), non tutti i boss in dati
+    return this.bossIdx >= WORLD_COUNT;
   }
 
   /** mult effettivo: classe × MOLA SALSA (legacy) × benedizioni di danno. */

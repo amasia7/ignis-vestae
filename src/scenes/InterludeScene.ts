@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { GROUND, H, W } from '../config/game.config';
 import { strings } from '../data/i18n';
-import { RUN, BOSS_COUNT } from '../core/RunState';
+import { RUN } from '../core/RunState';
 import { BOSS_DROPS } from '../data/buffs';
 import type { WeaponId } from '../data/weapons';
 import { SaveManager } from '../core/SaveManager';
@@ -70,7 +70,7 @@ export class InterludeScene extends Phaser.Scene {
         beep(300, 0.3, 'sine', 0.05, 150);
         RUN.advance();
         SaveManager.save();
-        this.scene.start(RUN.bossIdx < BOSS_COUNT ? 'level' : 'victory');
+        this.scene.start(RUN.isComplete ? 'victory' : 'level');
       };
       this.input.keyboard?.once('keydown-ENTER', next);
       this.input.once('pointerdown', next);

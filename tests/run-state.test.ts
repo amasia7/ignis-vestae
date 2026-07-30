@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { BOSS_COUNT, RunState } from '../src/core/RunState';
+import { WORLD_COUNT } from '../src/data/worlds';
 import { CLASSES } from '../src/data/classes';
 
 describe('RunState — progressione della run', () => {
@@ -28,19 +29,23 @@ describe('RunState — progressione della run', () => {
     expect(run.maxFlasks(cls.flasks)).toBe(4);
     expect(run.effectiveMult(cls.damageMult)).toBeCloseTo(1.25);
 
-    // dopo Cornelia: MOLA SALSA → mult ×1.4
+    // MOLA SALSA (mondo 2, oggi non attivo) resta funzionante: mult ×1.4
     run.grantRelic(1);
-    run.advance();
     expect(run.effectiveMult(cls.damageMult)).toBeCloseTo(1.75);
     expect(run.maxFlasks(cls.flasks)).toBe(4);
+  });
 
-    // dal Palladio in poi (BOSS_COUNT cresce con new:boss): run completa
-    for (let i = 2; i < BOSS_COUNT; i++) {
+  it('la run copre i mondi ATTIVI: completa dopo il loro ultimo custode', () => {
+    const run = new RunState();
+    run.startRun(0);
+    for (let i = 0; i < WORLD_COUNT; i++) {
       expect(run.isComplete).toBe(false);
       run.grantRelic(i);
       run.advance();
     }
     expect(run.isComplete).toBe(true);
+    // gli array restano dimensionati su TUTTI i boss in dati (futuri inclusi)
+    expect(run.relics).toHaveLength(BOSS_COUNT);
   });
 
   it('endRun mantiene la classe come il legacy (r. 980)', () => {

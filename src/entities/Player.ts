@@ -61,6 +61,9 @@ export class Player {
   private readonly sm: StateMachine<PlayerStateId, Player>;
   private readonly jumpTimers = new JumpTimers();
   private readonly weapon: PlayerWeapon;
+  /** Visuale della capriola: ruota sul baricentro, non sui piedi. */
+  private rollImg: Phaser.GameObjects.Image | null = null;
+  private wasGrounded = true;
 
   constructor(scene: Phaser.Scene, host: CombatHost) {
     this.scene = scene;
@@ -101,6 +104,8 @@ export class Player {
       {
         roll: {
           onEnter: (p) => p.sm.at(PLAYER.roll.durationMs, end),
+          // qualunque uscita dal roll (fine, ferita) ripulisce la capriola
+          onExit: (p) => p.endRollFx(),
         },
         attL: {
           onEnter: (p) => {
@@ -207,8 +212,20 @@ export class Player {
     (s.body as Phaser.Physics.Arcade.Body).maxVelocity.x = PLAYER.roll.maxVelocity;
     s.setAccelerationX(0);
     s.setVelocityX(this.face * PLAYER.roll.velocity);
-    s.setScale(1, PLAYER.roll.squashScaleY);
+    // la fisica continua sullo sprite nascosto; la capriola è un'immagine
+    // separata che ruota sul proprio centro (sui piedi sembrava un compasso)
+    s.setVisible(false);
+    this.rollImg = this.scene.add
+      .image(s.x, s.y - 30, s.texture.key)
+      .setDepth(4)
+      .setScale(0.88);
     beep(160, 0.12, 'triangle', 0.05, -80);
+  }
+
+  private endRollFx(): void {
+    this.rollImg?.destroy();
+    this.rollImg = null;
+    this.spr.setVisible(true);
   }
 
   private useAbility(): void {
@@ -325,6 +342,13 @@ export class Player {
     }
 
     const g = this.grounded();
+    // atterraggio: schiacciamento e polvere (squash & stretch)
+    if (g && !this.wasGrounded && !this.sm.is('roll')) {
+      s.setScale(1.15, 0.84);
+      this.scene.tweens.add({ targets: s, scaleX: 1, scaleY: 1, duration: 130, ease: 'Sine.out' });
+      puff(this.scene, s.x, s.y - 3, 0x8a7d6a, 5, 28, 240);
+    }
+    this.wasGrounded = g;
     this.jumpTimers.update(dt, g, input.justPressed('JUMP'));
     const spd = this.baseSpeed * (this.haste > 0 ? ABILITIES.haste.speedMult : 1);
     body.maxVelocity.x = this.sm.is('roll') ? PLAYER.roll.maxVelocity : spd;
@@ -336,10 +360,17 @@ export class Player {
         s.setAccelerationX(ax * PLAYER.accelX);
         s.setFlipX(ax < 0);
       } else s.setAccelerationX(0);
+      // corsa: leggera inclinazione in avanti e polvere sotto i piedi
+      s.setRotation(g ? ax * 0.05 : 0);
+      if (g && ax !== 0 && Math.random() < 0.14)
+        puff(this.scene, s.x - this.face * 12, s.y - 3, 0x6b5f4e, 1, 14, 220);
 
       if (this.jumpTimers.shouldJump) {
         this.jumpTimers.consume();
         s.setVelocityY(PLAYER.jumpVelocity);
+        // stacco: la figura si allunga verso l'alto
+        s.setScale(0.86, 1.15);
+        this.scene.tweens.add({ targets: s, scaleX: 1, scaleY: 1, duration: 160, ease: 'Sine.out' });
         beep(320, 0.08, 'triangle', 0.03, 140);
       }
       if (!input.jumpHeldForCut() && body.velocity.y < PLAYER.jumpCutVelocity)
@@ -357,6 +388,7 @@ export class Player {
           if (this.stamina.trySpend(PLAYER.heavyAttack.staminaCost)) {
             this.hitConnected = false;
             s.setAccelerationX(0);
+            s.setVelocityX(this.face * 190); // affondo del colpo pesante
             this.sm.set('attH');
           }
         } else if (!input.isHeld('ATTACK')) {
@@ -364,6 +396,7 @@ export class Player {
           if (this.stamina.trySpend(PLAYER.lightAttack.staminaCost)) {
             this.hitConnected = false;
             s.setAccelerationX(0);
+            s.setVelocityX(this.face * 150); // passo in avanti col fendente
             this.sm.set('attL');
           }
         }
@@ -391,13 +424,22 @@ export class Player {
       }
     } else {
       s.setAccelerationX(0);
+      if (!this.sm.is('roll')) s.setRotation(0);
       // la guardia dura finché il tasto resta premuto
       if (this.sm.is('guard') && !input.isHeld('SHIELD')) this.endState();
     }
 
-    // nuova animazione della schivata: capriola completa
-    if (this.sm.is('roll'))
-      s.setRotation(this.face * (this.sm.time / PLAYER.roll.durationMs) * Math.PI * 2);
+    // capriola: raccolta a palla, un giro pieno sul baricentro, piccolo
+    // arco verso l'alto e scia di polvere dietro
+    if (this.sm.is('roll') && this.rollImg) {
+      const t = this.sm.time / PLAYER.roll.durationMs;
+      this.rollImg
+        .setPosition(s.x, s.y - 26 - Math.sin(t * Math.PI) * 7)
+        .setRotation(this.face * t * Math.PI * 2)
+        .setFlipX(this.face < 0);
+      if (Math.random() < 0.55)
+        puff(this.scene, s.x - this.face * 16, s.y - 5, 0x8a7d6a, 1, 18, 240);
+    }
 
     this.sm.update(dt);
     if (this.sm.is('free') || this.sm.is('guard')) this.stamina.regen(dt);
