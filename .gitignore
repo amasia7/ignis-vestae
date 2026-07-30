@@ -1,6 +1,6 @@
-# Godot
+# Godot — la cartella .godot/ è cache locale dell'editor: mai versionarla.
+# I file *.import invece SÌ: contengono le impostazioni di importazione.
 .godot/
-*.import
 export_presets.cfg.secret
 export/
 build/
