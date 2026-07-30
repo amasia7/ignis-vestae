@@ -6,9 +6,9 @@ import { btn, btnsm } from './generated/ui';
 import { equus } from './generated/equus';
 import { ghost, hand } from './generated/cornelia';
 import { statue } from './generated/palladio';
-import { spear, brazier, scutum } from './generated/props';
+import { spear, brazier, scutum, platform, arrow } from './generated/props';
 import { gladius, balsamo, incenso, falx, dolabra, hasta, sigil, urn } from './generated/pickups';
-import { shade, larva } from './generated/enemies';
+import { shade, larva, warrior, archer } from './generated/enemies';
 
 /**
  * Manifest delle texture: chiave → dimensioni, origine, generatore.
@@ -43,6 +43,10 @@ export const TEXTURES = {
   incenso: { size: [20, 20], origin: [0.5, 0.5], generator: incenso },
   shade: { size: [40, 64], origin: [0.5, 1], generator: shade },
   larva: { size: [36, 22], origin: [0.5, 1], generator: larva },
+  warrior: { size: [44, 64], origin: [0.5, 1], generator: warrior },
+  archer: { size: [40, 62], origin: [0.5, 1], generator: archer },
+  platform: { size: [160, 18], origin: [0.5, 0], generator: platform },
+  arrow: { size: [30, 6], origin: [0.5, 0.5], generator: arrow },
   wp4: { size: [44, 14], origin: [0.12, 0.5], generator: falx },
   wp5: { size: [44, 16], origin: [0.12, 0.5], generator: dolabra },
   wp6: { size: [52, 10], origin: [0.12, 0.5], generator: hasta },

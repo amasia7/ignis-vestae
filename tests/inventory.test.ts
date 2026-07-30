@@ -87,20 +87,19 @@ describe('oggetti nella borsa', () => {
   });
 });
 
-describe('mondi e cammini', () => {
-  it('3 mondi × 5 cammini, durata (larghezza) e nemici crescenti', () => {
+describe('mondi e cammini (rework: platforming, guerrieri e arcieri)', () => {
+  it('3 mondi × 3 mini livelli con piattaforme e ostacoli', () => {
     expect(WORLD_COUNT).toBe(3);
-    expect(LEVELS_PER_WORLD).toBe(5);
+    expect(LEVELS_PER_WORLD).toBe(3);
     for (let w = 0; w < WORLD_COUNT; w++) {
       let prevWidth = 0;
-      let prevEnemies = 0;
       for (let l = 0; l < LEVELS_PER_WORLD; l++) {
         const spec = levelSpec(w, l);
         expect(spec.width).toBeGreaterThan(prevWidth); // durata incrementale
-        expect(spec.enemies.length).toBeGreaterThan(prevEnemies); // più nemici
         prevWidth = spec.width;
-        prevEnemies = spec.enemies.length;
         expect(spec.arenaIdx).toBe(w); // stesso sfondo per tutto il mondo
+        expect(spec.platforms.length).toBeGreaterThanOrEqual(3); // verticalità
+        expect(spec.obstacles.length).toBeGreaterThanOrEqual(2); // braci da saltare
         for (const e of spec.enemies) {
           expect(Object.keys(ENEMIES)).toContain(e.type);
           expect(e.x).toBeGreaterThan(200);
@@ -110,11 +109,37 @@ describe('mondi e cammini', () => {
     }
   });
 
+  it('ogni livello mescola guerrieri e arcieri nello stesso cammino', () => {
+    for (let w = 0; w < WORLD_COUNT; w++)
+      for (let l = 0; l < LEVELS_PER_WORLD; l++) {
+        const types = new Set(levelSpec(w, l).enemies.map((e) => e.type));
+        expect(types.has('guerriero')).toBe(true);
+        expect(types.has('arciere')).toBe(true);
+      }
+  });
+
+  it('i mondi successivi aggiungono rinforzi', () => {
+    expect(levelSpec(1, 0).enemies.length).toBeGreaterThan(levelSpec(0, 0).enemies.length);
+    expect(levelSpec(2, 0).enemies.length).toBeGreaterThan(levelSpec(1, 0).enemies.length);
+  });
+
+  it('gli arcieri in quota stanno davvero su una piattaforma', () => {
+    for (let w = 0; w < WORLD_COUNT; w++)
+      for (let l = 0; l < LEVELS_PER_WORLD; l++) {
+        const spec = levelSpec(w, l);
+        for (const e of spec.enemies)
+          if (e.y !== undefined) {
+            const plat = spec.platforms.find((p) => p.y === e.y && Math.abs(p.x - e.x) <= p.w / 2);
+            expect(plat).toBeDefined();
+          }
+      }
+  });
+
   it('è deterministico: stesso seme, stesso layout', () => {
     expect(levelSpec(1, 2)).toEqual(levelSpec(1, 2));
   });
 
-  it("2 segreti per mondo: un'arma (cammino II) e una benedizione (cammino IV)", () => {
+  it("2 segreti per mondo: un'arma (cammino II) e una benedizione (cammino III)", () => {
     for (let w = 0; w < WORLD_COUNT; w++) {
       const urns = Array.from({ length: LEVELS_PER_WORLD }, (_, l) => levelSpec(w, l).urns).flat();
       expect(urns).toHaveLength(2);
@@ -123,13 +148,17 @@ describe('mondi e cammini', () => {
     }
   });
 
-  it('i nemici hanno dati sani e texture nel manifest', () => {
+  it('i nemici hanno dati sani, drop parco e texture nel manifest', () => {
     for (const e of Object.values(ENEMIES)) {
       expect(e.hp).toBeGreaterThan(0);
       expect(e.windupMs).toBeGreaterThan(0); // sempre telegrafato
       expect(e.dropChance).toBeGreaterThanOrEqual(0);
-      expect(e.dropChance).toBeLessThanOrEqual(1);
+      expect(e.dropChance).toBeLessThanOrEqual(0.1); // drop volutamente raro
       expect(Object.keys(TEXTURES)).toContain(e.textureKey);
+      if (e.ranged) {
+        expect(e.ranged.arrowSpeed).toBeGreaterThan(0);
+        expect(e.ranged.arrowDamage).toBeGreaterThan(0);
+      }
     }
   });
 });

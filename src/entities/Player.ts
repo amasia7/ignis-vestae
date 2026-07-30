@@ -186,7 +186,9 @@ export class Player {
   }
 
   grounded(): boolean {
-    return (this.spr.body as Phaser.Physics.Arcade.Body).blocked.down;
+    // blocked = terreno (limite del mondo), touching = piattaforme sospese
+    const b = this.spr.body as Phaser.Physics.Arcade.Body;
+    return b.blocked.down || b.touching.down;
   }
 
   rect(): Phaser.Geom.Rectangle {

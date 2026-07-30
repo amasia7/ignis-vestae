@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { GROUND, H, W } from '../config/game.config';
-import { ABILITIES, FIGHT } from '../config/balance';
-import { LEVELS_PER_WORLD, levelSpec, roman } from '../data/worlds';
+import { ABILITIES, FIGHT, HAZARDS } from '../config/balance';
+import { LEVELS_PER_WORLD, levelSpec, roman, type ObstacleSpec } from '../data/worlds';
 import { ITEMS, type ItemId } from '../data/items';
 import { BUFFS, type BuffId } from '../data/buffs';
 import { Urn } from '../entities/Urn';
@@ -19,6 +19,7 @@ import { Player, type CombatHost } from '../entities/Player';
 import { Enemy, type EnemyHost } from '../entities/enemies/Enemy';
 import { Pickup } from '../entities/Pickup';
 import { Bolt } from '../entities/hazards/Bolt';
+import { Arrow } from '../entities/hazards/Arrow';
 import { beep } from '../fx/audio';
 import { puff, ringFx } from '../fx/particles';
 import { shake } from '../fx/screenShake';
@@ -41,7 +42,10 @@ export class LevelScene extends Phaser.Scene implements CombatHost, EnemyHost {
   private enemies: Enemy[] = [];
   private pickups: Pickup[] = [];
   private bolts: Bolt[] = [];
+  private arrows: Arrow[] = [];
   private urns: Urn[] = [];
+  private obstacles: readonly ObstacleSpec[] = [];
+  private levelWidth = 0;
   private world = 0;
   private levelIdx = 0;
   private isReplay = false;
@@ -61,16 +65,45 @@ export class LevelScene extends Phaser.Scene implements CombatHost, EnemyHost {
     this.enemies = [];
     this.pickups = [];
     this.bolts = [];
+    this.arrows = [];
     this.urns = [];
     // rigiocata di un cammino completato oppure progressione normale
     this.isReplay = RUN.replay !== null;
     this.world = RUN.replay?.world ?? RUN.bossIdx;
     this.levelIdx = RUN.replay?.level ?? RUN.levelIdx;
     const level = levelSpec(this.world, this.levelIdx);
+    this.levelWidth = level.width;
+    this.obstacles = level.obstacles;
 
     buildLevelBackground(this, level.arenaIdx, level.width);
     this.physics.world.setBounds(30, -400, level.width - 60, GROUND + 400);
     this.cameras.main.setBounds(0, 0, level.width, H);
+
+    // piattaforme sospese: attraversabili dal basso, solide dall'alto
+    const platforms = this.physics.add.staticGroup();
+    for (const p of level.platforms) {
+      const img = this.add
+        .image(p.x, p.y, 'platform')
+        .setOrigin(0.5, 0)
+        .setDepth(1)
+        .setScale(p.w / 160, 1);
+      platforms.add(img);
+      const body = img.body as Phaser.Physics.Arcade.StaticBody;
+      body.updateFromGameObject();
+      body.checkCollision.down = false;
+      body.checkCollision.left = false;
+      body.checkCollision.right = false;
+    }
+
+    // trincee di braci: si saltano o si aggirano dalle piattaforme
+    for (const o of level.obstacles) {
+      const n = Math.max(2, Math.round(o.w / 34));
+      for (let i = 0; i < n; i++)
+        this.add
+          .image(o.x + ((i + 0.5) * o.w) / n, GROUND - 5, 'flameglow')
+          .setDepth(1)
+          .setAlpha(0.85);
+    }
 
     this.controls = new InputManager();
     this.keyboardSource = new KeyboardSource(this);
@@ -83,9 +116,24 @@ export class LevelScene extends Phaser.Scene implements CombatHost, EnemyHost {
 
     this.player = new Player(this, this);
     this.cameras.main.startFollow(this.player.spr, true, 0.12, 0.12);
+    this.physics.add.collider(this.player.spr, platforms);
 
-    for (const spawn of level.enemies)
-      this.enemies.push(new Enemy(this, this, spawn.type, spawn.x));
+    // nemici a terra o in quota: chi sta su una piattaforma pattuglia lì
+    for (const spawn of level.enemies) {
+      const plat = spawn.y
+        ? level.platforms.find((p) => p.y === spawn.y && Math.abs(p.x - spawn.x) <= p.w / 2)
+        : undefined;
+      this.enemies.push(
+        new Enemy(
+          this,
+          this,
+          spawn.type,
+          spawn.x,
+          spawn.y ?? GROUND,
+          plat ? Math.max(20, plat.w / 2 - 24) : Number.POSITIVE_INFINITY,
+        ),
+      );
+    }
     for (const it of level.items) this.pickups.push(new Pickup(this, 'item', it.id, it.x));
     // urne segrete: solo quelle non ancora raccolte in questo sigillo
     for (const u of level.urns)
@@ -125,6 +173,10 @@ export class LevelScene extends Phaser.Scene implements CombatHost, EnemyHost {
     this.bolts.push(new Bolt(this, x, y, vx));
   }
 
+  spawnArrow(x: number, y: number, vx: number, damage: number): void {
+    this.arrows.push(new Arrow(this, x, y, vx, damage, this.levelWidth));
+  }
+
   doSmite(p: Player): void {
     shake(this, ABILITIES.smite.shake.durationMs, ABILITIES.smite.shake.intensity);
     ringFx(this, p.spr.x, p.spr.y - 30, 0xffd76b, 4.4, 360);
@@ -151,7 +203,7 @@ export class LevelScene extends Phaser.Scene implements CombatHost, EnemyHost {
 
   onEnemyDeath(enemy: Enemy): void {
     if (Math.random() < enemy.data.dropChance)
-      this.pickups.push(new Pickup(this, 'item', 'balsamo', enemy.x));
+      this.pickups.push(new Pickup(this, 'item', enemy.data.dropItem, enemy.x));
   }
 
   /* --- update --- */
@@ -195,6 +247,24 @@ export class LevelScene extends Phaser.Scene implements CombatHost, EnemyHost {
     if (!this.over && !this.resting) this.player.update(dt, this.controls);
 
     this.enemies = this.enemies.filter((e) => e.update(dt));
+    this.arrows = this.arrows.filter((a) => a.update(dt, this.player, this.over));
+
+    // trincee di braci: bruciano a intervalli chi ci resta sopra
+    const pspr = this.player.spr;
+    for (const o of this.obstacles) {
+      if (Math.random() < 0.25)
+        puff(this, o.x + Math.random() * o.w, GROUND - 8, 0xff9a3c, 1, 20, 420);
+      if (
+        !this.over &&
+        this.player.fireCd <= 0 &&
+        pspr.y > GROUND - HAZARDS.flame.hitRangeY &&
+        pspr.x > o.x - 14 &&
+        pspr.x < o.x + o.w + 14
+      ) {
+        this.player.fireCd = HAZARDS.flame.tickMs;
+        this.player.hurt(HAZARDS.flame.damage, 0);
+      }
+    }
 
     // dardi della Vestale contro i nemici
     const alive = this.enemies.filter((e) => !e.dead);
