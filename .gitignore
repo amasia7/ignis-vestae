@@ -1,4 +1,12 @@
-node_modules/
-dist/
-*.local
+# Godot
+.godot/
+*.import
+export_presets.cfg.secret
+export/
+build/
+
+# Editor / OS
 .DS_Store
+*.swp
+.idea/
+.vscode/

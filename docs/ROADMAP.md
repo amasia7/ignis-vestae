@@ -1,69 +1,68 @@
-# ROADMAP — rendere Ignis Vestae più entusiasmante
+# Roadmap
 
-Piano d'azione ragionato, in ondate. Ogni ondata è giocabile e pubblicabile
-da sola; dentro ogni ondata le voci sono in ordine di resa (impatto sul
-divertimento diviso per fatica).
+Milestone GIOCABILI: ognuna chiude qualcosa che si può provare con mano.
+Ordine pensato per validare presto i rischi grossi (il combat a turni
+prima di tutto). La storia resta fuori finché il gioco non gira.
 
-## Ondata 1 — Il colpo d'occhio (l'identità visiva e sonora)
+## M0 — Fondamenta (repo che si apre e si testa)
 
-L'infrastruttura c'è già (manifest asset + `assets/`): è l'ondata con il
-miglior rapporto resa/sforzo.
+- [x] Repo ripulita dal progetto Phaser (storia in `b5426da`)
+- [x] `project.godot` (640×360, pixel-art, GL Compatibility)
+- [x] Documentazione di design (questa cartella)
+- [ ] Autoload: `event_bus`, `run_state`, `rng_service` (scheletri)
+- [ ] Script Resource: `class_data`, `enemy_data`, `skill_data`,
+      `intent_data` + le prime `.tres` (Vestale, Lupo, Cinghiale)
+- [ ] gdUnit4 + primo test headless (l'ordine del round)
+- [ ] CI: gdformat + gdlint + test
 
-1. **Sprite animati dei 3 personaggi** (idle 4f, corsa 6f, attacco 4f,
-   roll 3f) via spritesheet — il manifest supporta già `frames`.
-2. **Boss illustrati**: Equus, Cornelia e Palladio generati con l'AI a
-   partire dai prompt in `docs/AI-ASSETS.md`.
-3. **Musica**: `title.ogg` e `game.ogg` sono già attive come chiavi; poi
-   una traccia per mondo + una per i boss (riservate), con crossfade.
-4. **Effetti sonori campionati** al posto dei beep (estensione del
-   manifest agli sfx: colpo, roll, morte, urna, raccolta).
-5. **Parallasse negli sfondi dei cammini** (2-3 piani) e nebbia bassa.
+## M1 — Il prototipo che decide tutto (SOLO combat)
 
-## Ondata 2 — La profondità del combattimento
+Un'arena hard-coded: Vestale contro 2 lupi e un cinghiale.
 
-1. **Armi con identità**, non solo moltiplicatore: velocità del colpo,
-   portata, un tratto speciale ciascuna (la falx ignora parte della
-   guardia, l'hasta colpisce più lontano, la dolabra spezza le urne da
-   lontano…). I dati sono già in `data/weapons.ts`: si aggiungono campi.
-2. **2-3 nemici nuovi per mondo** (già data-driven): il SEGUGIO infernale
-   è già pronto in `data/enemies.ts` (id `segugio`, texture `hound`) come
-   primo nemico medio — basta aggiungerlo agli spawn di `data/worlds.ts`;
-   poi uno scudato che chiede il colpo pesante e uno esplosivo.
-3. **Elite**: varianti rare dei nemici (più grandi, tinta diversa, drop
-   garantito) piazzate dal generatore dei livelli.
-4. **Mini-boss di metà mondo** al cammino III: un nemico elite con barra
-   propria — spezza il ritmo dei 5 cammini.
-5. **Contrattacco al roll perfetto**: schivare dentro la finestra i-frame
-   negli ultimi 50ms apre 1s di danno maggiorato (ricompensa lo skill).
+- [ ] `turn_engine`: round, iniziativa, PA, risoluzione azioni
+- [ ] Intenti dichiarati con icona e valore, ordine del round visibile
+- [ ] Azioni base: Colpo, Guardia, Oggetto, Fuga + Fiamma Votiva/Focolare
+- [ ] Ardore, Bruciatura, Vulnerabile, Stordimento
+- [ ] Due file per lato, cambio fila, portata delle armi
+- [ ] Vittoria/sconfitta, placeholder art (rettangoli va benissimo)
+- **Uscita di milestone**: lo scontro DIVERTE già così? Si tara qui,
+  non dopo.
 
-## Ondata 3 — Le ragioni per restare
+## M2 — Una zona vera
 
-1. **NG+**: dopo la vittoria si riparte col sigillo (già oggi armi e
-   benedizioni sopravvivono): nemici +50% hp/danno, ricompense nuove.
-2. **Sfide dei cammini**: obiettivi opzionali per livello (senza subire
-   colpi, entro un tempo, senza ampolle) con sigilli cosmetici.
-3. **Boss rush** dal menu LIVELLI: i tre custodi in fila, best time.
-4. **Statistiche del sigillo**: morti, tempi, segreti trovati, % completamento.
-5. **Quarto mondo** (l'architettura lo prevede: `new:boss` + un file
-   dati): il Rex Sacrorum, sotto la Regia, con reliquia e arena proprie.
+- [ ] Overworld top-down: movimento, camera, collisioni
+- [ ] `zone_generator`: chunk prefabbricati + collegamento con seme
+- [ ] Incontri visibili con aggro leggibile → transizione all'arena
+- [ ] Braciere, urne segrete, un evento, il santuario d'uscita
+- [ ] Campo Marzio completo con le sue squadre (fauna + primi guerrieri)
 
-## Ondata 4 — L'apertura al mondo
+## M3 — La prima discesa completa
 
-1. **Pubblicazione su itch.io** (build già pronta) con pagina curata.
-2. **Localizzazione inglese**: `strings.en.ts` — lo schema tipizzato
-   garantisce che non manchi nulla; il selettore c'è già.
-3. **Touch di seconda generazione**: pad virtuale rifinito, aptica, layout
-   per tablet.
-4. **Accessibilità**: modalità daltonismo per i telegrafi, rallentatore
-   opzionale (-20% velocità globale), rimappatura completa già presente.
-5. **Telemetria locale opzionale** (dove muoiono i giocatori, per
-   bilanciare i cammini).
+- [ ] Tempio di Vesta (hub): scelta classe, partenza
+- [ ] Rotta: Campo Marzio → bivio (Suburra/Cloaca, una delle due basta)
+      → arena di EQUUS OCTOBER
+- [ ] Boss: mazzo intenti multi-round, meccanica d'arena, bottino
+- [ ] Morte → Tempio con Cenere; vittoria → chiusura della run
+- [ ] Salvataggio profilo + run in corso
+- **Uscita**: la run di 20–30 minuti esiste, si muore e si riparte.
 
-## Nord stelle (da tenere a mente a ogni ondata)
+## M4 — Le tre classi e il bestiario
 
-- Il game feel legacy resta il riferimento DOVE il committente non ha
-  chiesto altro; le divergenze volute sono elencate in BALANCE-NOTES §6 e
-  blindate dai test come i valori originali.
-- Tutto ciò che è contenuto (nemici, livelli, armi, buff, testi) resta
-  **dati**, mai codice: è ciò che rende il gioco espandibile in un weekend.
-- Ogni asset resta sostituibile via `assets/` senza toccare il codice.
+- [ ] Sacerdote e Aruspice giocabili (kit completi di partenza)
+- [ ] Pool abilità + pesca al santuario (3 scelte)
+- [ ] Fascia 2 completa (arciere, ombra, larva) + élite Segugio
+- [ ] Reliquie, armi trovabili, negozio del santuario
+- [ ] Meta-progressione: bracieri degli sblocchi, primi Editti
+
+## M5 — Rifinitura e pubblicazione
+
+- [ ] Sprite definitivi sugli asset di riferimento (via `assets/`)
+- [ ] Musica hub/esplorazione/arena, sound design dei turni
+- [ ] Juice dei turni: anticipazioni, screen shake misurato, hit-stop
+- [ ] Export web + deploy automatico su GitHub Pages
+- [ ] Bilanciamento su dati (seed fissi + statistiche di morte)
+
+## Poi (non ora)
+
+Seconda e terza zona con Cornelia e il Palladio · eventi con catene ·
+daily run col seme del giorno · la storia · localizzazione inglese.
