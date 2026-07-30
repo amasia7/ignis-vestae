@@ -10,6 +10,9 @@ import { FightScene } from './scenes/FightScene';
 import { HudScene } from './scenes/HudScene';
 import { InterludeScene } from './scenes/InterludeScene';
 import { VictoryScene } from './scenes/VictoryScene';
+import { SlotScene } from './scenes/SlotScene';
+import { LevelSelectScene } from './scenes/LevelSelectScene';
+import { InfoScene } from './scenes/InfoScene';
 import { LevelScene } from './scenes/LevelScene';
 import { InventoryScene } from './scenes/InventoryScene';
 import { PauseScene } from './scenes/PauseScene';
@@ -17,8 +20,8 @@ import { SettingsScene } from './scenes/SettingsScene';
 // @scaffold:scene-import
 import { SaveManager } from './core/SaveManager';
 
-// Carica salvataggio e impostazioni prima di avviare il gioco
-SaveManager.load();
+// Impostazioni globali (le run vivono negli slot, scelti dal menu)
+SaveManager.loadSettings();
 
 // Testi dell'overlay "ruota il telefono" (r. 18 legacy) dal bundle i18n
 const rot = document.getElementById('rot');
@@ -48,6 +51,9 @@ const game = new Phaser.Game({
     HudScene,
     InterludeScene,
     VictoryScene,
+    SlotScene,
+    LevelSelectScene,
+    InfoScene,
     LevelScene,
     InventoryScene,
     PauseScene,
@@ -60,4 +66,7 @@ const game = new Phaser.Game({
 // import.meta.env.DEV è false in produzione: il blocco viene eliminato.
 if (import.meta.env.DEV) {
   (window as unknown as { __IGNIS?: Phaser.Game }).__IGNIS = game;
+  void import('./core/RunState').then((m) => {
+    (window as unknown as { __IGNIS_RUN?: unknown }).__IGNIS_RUN = m.RUN;
+  });
 }

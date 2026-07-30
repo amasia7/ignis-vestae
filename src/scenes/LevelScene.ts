@@ -1,8 +1,11 @@
 import Phaser from 'phaser';
 import { GROUND, H, W } from '../config/game.config';
 import { ABILITIES, FIGHT } from '../config/balance';
-import { LEVELS } from '../data/levels';
+import { LEVELS_PER_WORLD, levelSpec, roman } from '../data/worlds';
 import { ITEMS, type ItemId } from '../data/items';
+import { BUFFS, type BuffId } from '../data/buffs';
+import { Urn } from '../entities/Urn';
+import { SaveManager } from '../core/SaveManager';
 import { strings } from '../data/i18n';
 import { RUN } from '../core/RunState';
 import { gameEvents } from '../core/EventBus';
@@ -36,6 +39,10 @@ export class LevelScene extends Phaser.Scene implements CombatHost, EnemyHost {
   private enemies: Enemy[] = [];
   private pickups: Pickup[] = [];
   private bolts: Bolt[] = [];
+  private urns: Urn[] = [];
+  private world = 0;
+  private levelIdx = 0;
+  private isReplay = false;
   private brazierX = 0;
   private resting = false;
   private retryArmed = false;
@@ -52,7 +59,12 @@ export class LevelScene extends Phaser.Scene implements CombatHost, EnemyHost {
     this.enemies = [];
     this.pickups = [];
     this.bolts = [];
-    const level = LEVELS[RUN.bossIdx] ?? LEVELS[0]!;
+    this.urns = [];
+    // rigiocata di un cammino completato oppure progressione normale
+    this.isReplay = RUN.replay !== null;
+    this.world = RUN.replay?.world ?? RUN.bossIdx;
+    this.levelIdx = RUN.replay?.level ?? RUN.levelIdx;
+    const level = levelSpec(this.world, this.levelIdx);
 
     buildLevelBackground(this, level.arenaIdx, level.width);
     this.physics.world.setBounds(30, -400, level.width - 60, GROUND + 400);
@@ -71,7 +83,10 @@ export class LevelScene extends Phaser.Scene implements CombatHost, EnemyHost {
 
     for (const spawn of level.enemies)
       this.enemies.push(new Enemy(this, this, spawn.type, spawn.x));
-    for (const p of level.pickups) this.pickups.push(new Pickup(this, p.kind, p.id, p.x));
+    for (const it of level.items) this.pickups.push(new Pickup(this, 'item', it.id, it.x));
+    // urne segrete: solo quelle non ancora raccolte in questo sigillo
+    for (const u of level.urns)
+      if (!RUN.hasSecret(u.uid)) this.urns.push(new Urn(this, u.x, u.content, u.uid));
 
     // braciere-checkpoint in fondo al cammino
     this.brazierX = level.width - 140;
@@ -82,11 +97,22 @@ export class LevelScene extends Phaser.Scene implements CombatHost, EnemyHost {
     this.scene.launch('hud', { target: 'level' });
     this.events.once('shutdown', () => this.scene.stop('hud'));
 
-    // indicazione della meta (fissa sullo schermo, svanisce)
-    const goal = T(this, W / 2, 120, strings().level.goal, 20, '#d8c9a3')
+    // mondo e cammino correnti + meta (fissi sullo schermo, svaniscono)
+    const s = strings();
+    const label = T(
+      this,
+      W / 2,
+      92,
+      `${s.level.world} ${roman(this.world + 1)}  ·  ${s.level.path} ${roman(this.levelIdx + 1)}`,
+      24,
+      '#c9a227',
+    )
       .setScrollFactor(0)
       .setDepth(11);
-    this.tweens.add({ targets: goal, alpha: 0, duration: 900, delay: 2200 });
+    const goal = T(this, W / 2, 126, s.level.goal, 17, '#d8c9a3')
+      .setScrollFactor(0)
+      .setDepth(11);
+    this.tweens.add({ targets: [label, goal], alpha: 0, duration: 900, delay: 2400 });
     beep(60, 0.5, 'sine', 0.04, -10);
   }
 
@@ -161,19 +187,31 @@ export class LevelScene extends Phaser.Scene implements CombatHost, EnemyHost {
       b.update(dt, this, alive, (e) => e.takeDamage(ABILITIES.cast.boltDamage * this.player.mult)),
     );
 
-    // colpi in mischia sui nemici (un colpo connette su un bersaglio)
+    // colpi in mischia: urne segrete e nemici (un colpo, un bersaglio)
     const a = this.player.attackBox();
     if (a) {
-      for (const e of alive) {
-        if (Phaser.Geom.Rectangle.Overlaps(a.rect, e.rect())) {
+      let hit = false;
+      for (const u of this.urns) {
+        if (!u.broken && Phaser.Geom.Rectangle.Overlaps(a.rect, u.rect())) {
           this.player.registerHit();
-          e.takeDamage(a.damage);
-          puff(this, e.x, GROUND - 40, 0xffd27a, 10, 60, 320);
-          beep(500, 0.06, 'square', 0.05, -300);
+          if (u.smash())
+            this.pickups.push(new Pickup(this, u.content.kind, u.content.id, u.x, u.uid));
+          hit = true;
           break;
         }
       }
+      if (!hit)
+        for (const e of alive) {
+          if (Phaser.Geom.Rectangle.Overlaps(a.rect, e.rect())) {
+            this.player.registerHit();
+            e.takeDamage(a.damage);
+            puff(this, e.x, GROUND - 40, 0xffd27a, 10, 60, 320);
+            beep(500, 0.06, 'square', 0.05, -300);
+            break;
+          }
+        }
     }
+    for (const u of this.urns) u.update(this.player.spr.x);
 
     // raccolta
     if (!this.over) {
@@ -198,12 +236,20 @@ export class LevelScene extends Phaser.Scene implements CombatHost, EnemyHost {
       const entry = s.weapons[p.id as WeaponId];
       name = entry.name;
       fx = entry.fx;
+    } else if (p.kind === 'buff') {
+      RUN.addBuff(p.id as BuffId);
+      const b = BUFFS[p.id as BuffId];
+      const entry = s.buffs[b.id];
+      name = entry.name;
+      fx = entry.fx;
     } else {
       RUN.addItem(p.id as ItemId);
       const entry = s.items[ITEMS[p.id as ItemId].id];
       name = entry.name;
       fx = entry.fx;
     }
+    if (p.secretUid) RUN.markSecret(p.secretUid);
+    SaveManager.save();
     beep(660, 0.2, 'sine', 0.05, 160);
     ringFx(this, p.x, GROUND - 30, 0xffd27a, 2.4, 320);
     const toast = T(
@@ -232,9 +278,18 @@ export class LevelScene extends Phaser.Scene implements CombatHost, EnemyHost {
 
   private updateBrazier(): void {
     if (this.over || this.resting) return;
+    const s = strings();
+    const nextIsBoss = !this.isReplay && this.levelIdx >= LEVELS_PER_WORLD - 1;
     const near = Math.abs(this.player.spr.x - this.brazierX) < 70;
     if (near && !this.restPrompt) {
-      this.restPrompt = T(this, W / 2, H - 100, strings().level.rest, 16, '#d8c9a3')
+      this.restPrompt = T(
+        this,
+        W / 2,
+        H - 100,
+        nextIsBoss ? s.level.rest : s.level.restNext,
+        16,
+        '#d8c9a3',
+      )
         .setScrollFactor(0)
         .setDepth(11);
     } else if (!near && this.restPrompt) {
@@ -243,14 +298,25 @@ export class LevelScene extends Phaser.Scene implements CombatHost, EnemyHost {
     }
     if (near && this.controls.justPressed('CONFIRM')) {
       this.resting = true;
-      // riposo al braciere: il custode si affronta a piena vita, come nel legacy
+      // riposo al braciere: si riparte sempre a piena vita
       this.player.hp = this.player.mhp;
       this.player.stamina.value = this.player.stamina.max;
       this.player.fl = this.player.mfl;
       beep(300, 0.3, 'sine', 0.05, 150);
       ringFx(this, this.brazierX, GROUND - 30, 0xff9a3c, 3.2, 500);
       this.cameras.main.fadeOut(600, 0, 0, 0);
-      this.time.delayedCall(650, () => this.scene.start('fight'));
+      this.time.delayedCall(650, () => {
+        if (this.isReplay) {
+          // rigiocata: si torna alla scelta dei cammini
+          RUN.replay = null;
+          this.scene.start('levelselect');
+          return;
+        }
+        RUN.completeLevel(this.world, this.levelIdx);
+        RUN.levelIdx++;
+        SaveManager.save();
+        this.scene.start(RUN.levelIdx < LEVELS_PER_WORLD ? 'level' : 'fight');
+      });
     }
   }
 }

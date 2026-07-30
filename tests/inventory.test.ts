@@ -3,7 +3,7 @@ import { RunState } from '../src/core/RunState';
 import { WEAPONS, CLASS_WEAPONS } from '../src/data/weapons';
 import { ITEMS } from '../src/data/items';
 import { ENEMIES } from '../src/data/enemies';
-import { LEVELS } from '../src/data/levels';
+import { LEVELS_PER_WORLD, WORLD_COUNT, levelSpec } from '../src/data/worlds';
 import { TEXTURES } from '../src/art/registry';
 import { STRINGS_IT } from '../src/data/strings.it';
 
@@ -65,20 +65,39 @@ describe('oggetti nella borsa', () => {
   });
 });
 
-describe('livelli intermedi', () => {
-  it('un livello per boss, con progressione da sinistra a destra', () => {
-    expect(LEVELS.length).toBe(3);
-    for (const level of LEVELS) {
-      expect(level.width).toBeGreaterThan(960);
-      for (const e of level.enemies) {
-        expect(Object.keys(ENEMIES)).toContain(e.type);
-        expect(e.x).toBeGreaterThan(200); // non addosso allo spawn del player
-        expect(e.x).toBeLessThan(level.width - 200); // non dentro il braciere
+describe('mondi e cammini', () => {
+  it('3 mondi × 5 cammini, durata (larghezza) e nemici crescenti', () => {
+    expect(WORLD_COUNT).toBe(3);
+    expect(LEVELS_PER_WORLD).toBe(5);
+    for (let w = 0; w < WORLD_COUNT; w++) {
+      let prevWidth = 0;
+      let prevEnemies = 0;
+      for (let l = 0; l < LEVELS_PER_WORLD; l++) {
+        const spec = levelSpec(w, l);
+        expect(spec.width).toBeGreaterThan(prevWidth); // durata incrementale
+        expect(spec.enemies.length).toBeGreaterThan(prevEnemies); // più nemici
+        prevWidth = spec.width;
+        prevEnemies = spec.enemies.length;
+        expect(spec.arenaIdx).toBe(w); // stesso sfondo per tutto il mondo
+        for (const e of spec.enemies) {
+          expect(Object.keys(ENEMIES)).toContain(e.type);
+          expect(e.x).toBeGreaterThan(200);
+          expect(e.x).toBeLessThan(spec.width - 200);
+        }
       }
-      for (const p of level.pickups) {
-        expect(p.x).toBeGreaterThan(0);
-        expect(p.x).toBeLessThan(level.width);
-      }
+    }
+  });
+
+  it('è deterministico: stesso seme, stesso layout', () => {
+    expect(levelSpec(1, 2)).toEqual(levelSpec(1, 2));
+  });
+
+  it("2 segreti per mondo: un'arma (cammino II) e una benedizione (cammino IV)", () => {
+    for (let w = 0; w < WORLD_COUNT; w++) {
+      const urns = Array.from({ length: LEVELS_PER_WORLD }, (_, l) => levelSpec(w, l).urns).flat();
+      expect(urns).toHaveLength(2);
+      expect(urns.map((u) => u.content.kind).sort()).toEqual(['buff', 'weapon']);
+      for (const u of urns) expect(u.uid).toContain(`w${w}`);
     }
   });
 

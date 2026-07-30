@@ -48,3 +48,9 @@ indipendente dal codice.
 | `brazier` `balsamo`               | oggetti di scena e pickup         | 72×40, 20×20            |
 
 L'elenco completo e aggiornato è sempre `npm run art:preview`.
+
+## Musica
+
+Stessa logica: `assets/audio/title.ogg` (o `.mp3`) sostituisce la musica
+procedurale del menu. Chiavi e specifiche complete — incluse quelle per
+generare gli asset con un'altra AI — in `docs/AI-ASSETS.md`.

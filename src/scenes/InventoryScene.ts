@@ -3,6 +3,7 @@ import { H, W } from '../config/game.config';
 import { strings } from '../data/i18n';
 import { WEAPONS, type WeaponId } from '../data/weapons';
 import { ITEMS, type ItemId } from '../data/items';
+import { BUFFS } from '../data/buffs';
 import { RUN } from '../core/RunState';
 import { SaveManager } from '../core/SaveManager';
 import { GamepadMenu } from '../input/GamepadMenu';
@@ -99,6 +100,26 @@ export class InventoryScene extends Phaser.Scene {
       this.drawRow(row, rowIdx, x0, y);
       y += 34;
       rowIdx++;
+    }
+    // benedizioni permanenti: elenco passivo, non selezionabile
+    if (RUN.buffs.length > 0) {
+      y += 10;
+      header(s.inventory.buffsHeader);
+      for (const id of RUN.buffs) {
+        const b = BUFFS[id];
+        this.rowObjs.push(
+          this.add
+            .image(x0 + 16, y, 'sigil')
+            .setTint(b.tint)
+            .setScale(0.85),
+        );
+        this.rowObjs.push(
+          this.add
+            .text(x0 + 44, y, `${s.buffs[id].name} — ${s.buffs[id].fx}`, textStyle(12, '#b9d8c8'))
+            .setOrigin(0, 0.5),
+        );
+        y += 26;
+      }
     }
     this.refreshDesc();
   }

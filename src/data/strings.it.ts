@@ -30,6 +30,43 @@ export const STRINGS_IT: Strings = {
     settingsHint: 'O  —  impostazioni',
   },
 
+  // menu principale a voci
+  menu: {
+    newGame: 'NUOVA PARTITA',
+    continue: 'CONTINUA',
+    levels: 'LIVELLI',
+    settings: 'IMPOSTAZIONI',
+    info: 'INFO',
+    hint: '↑ ↓ scegliere · INVIO confermare',
+  },
+  slots: {
+    titleNew: 'NUOVA PARTITA — scegli il sigillo',
+    titleContinue: 'CONTINUA — scegli il sigillo',
+    titleLevels: 'LIVELLI — scegli il sigillo',
+    empty: 'sigillo intatto',
+    slot: 'SIGILLO',
+    overwrite: 'occupato — INVIO di nuovo per sovrascrivere',
+    hint: '↑ ↓ scegliere · INVIO confermare · ESC tornare',
+  },
+  levelSelect: {
+    title: 'CAMMINI COMPLETATI',
+    hint: '↑ ↓ ◀ ▶ scegliere · INVIO rigioca · ESC tornare',
+    none: 'Nessun cammino ancora completato in questo sigillo.',
+    world: 'MONDO',
+    path: 'CAMMINO',
+  },
+  info: {
+    title: 'INFO',
+    body:
+      'IGNIS VESTAE — un souls-like delle Vestali.\n\n' +
+      'Anno 394: il fuoco sacro è stato spento per editto. Attraversa i ' +
+      'cammini, abbatti i custodi corrotti, riporta le reliquie al focolare.\n\n' +
+      'Tre mondi, cinque cammini ciascuno, un custode alla fine di ogni mondo. ' +
+      'Nei cammini si nascondono urne con armi e benedizioni: spezzale.\n\n' +
+      'La schivata attraversa gli attacchi. La resistenza governa ogni gesto.\n\n' +
+      'Prototipo e testi: il committente. Migrazione e codice: bottega di Claude.',
+  },
+
   select: {
     // legacy r. 719-741
     heading: 'SCEGLI  IL  TUO  VOTO',
@@ -147,6 +184,7 @@ export const STRINGS_IT: Strings = {
     heading: 'RELIQUIA  RECUPERATA',
     nextTouch: '—  tocca: riposa al braciere e prosegui  —',
     nextKey: '—  INVIO: riposa al braciere e prosegui  —',
+    bounty: 'BOTTINO DEL CUSTODE',
   },
 
   victory: {
@@ -192,6 +230,21 @@ export const STRINGS_IT: Strings = {
       desc: 'Ferro di legionario caduto scortando le reliquie, cosparso di mola salsa dalle vergini in fuga.',
       fx: 'In pugno: ogni colpo infligge il 10% di danno in più.',
     },
+    falx: {
+      name: 'FALX VOTIVA',
+      desc: 'Falce tracia deposta come ex voto e mai più ritirata. La curva della lama ricorda una luna calante.',
+      fx: 'In pugno: danno aumentato del 5%.',
+    },
+    dolabra: {
+      name: 'DOLABRA DEI GENIERI',
+      desc: 'Piccone-scure di chi scavò il Campus Sceleratus. Ha aperto la terra; apre anche gli spettri.',
+      fx: 'In pugno: danno aumentato del 15%.',
+    },
+    hasta: {
+      name: 'HASTA PURA',
+      desc: 'L’asta senza ferro dei trionfi, ma questa una punta ce l’ha: fu intinta nel fuoco sacro.',
+      fx: 'In pugno: danno aumentato del 25%.',
+    },
   },
   items: {
     balsamo: {
@@ -200,10 +253,38 @@ export const STRINGS_IT: Strings = {
       fx: 'Dalla borsa: ridona 30 punti di vita.',
     },
   },
+  buffs: {
+    cenereVotiva: {
+      name: 'CENERE VOTIVA',
+      desc: 'Un pugno di cenere del primo focolare, cucito in un sacchetto di lino.',
+      fx: 'Benedizione: resistenza massima +15.',
+    },
+    lacrimeEgeria: {
+      name: 'LACRIME DI EGERIA',
+      desc: 'La ninfa pianse tanto da divenire fonte. Una fiala di quel pianto.',
+      fx: 'Benedizione: un’ampolla in più.',
+    },
+    fuocoInterno: {
+      name: 'FUOCO INTERNO',
+      desc: 'Brace del Penus inghiottita in sogno. Da allora le gambe non conoscono fatica.',
+      fx: 'Benedizione: rapidità +8%.',
+    },
+    veloSepolta: {
+      name: 'VELO DELLA SEPOLTA',
+      desc: 'Il velo che Cornelia portò sottoterra. Chi lo indossa non teme la fossa.',
+      fx: 'Benedizione: vigore massimo +15.',
+    },
+    sigilloVesta: {
+      name: 'SIGILLO DI VESTA',
+      desc: 'Il marchio della dea sul palmo. Ogni colpo è un atto di culto.',
+      fx: 'Benedizione: danno +10%.',
+    },
+  },
   inventory: {
     title: 'BORSA',
     weaponsHeader: 'ARMI',
     itemsHeader: 'OGGETTI',
+    buffsHeader: 'BENEDIZIONI',
     hint: '↑ ↓ scegliere · INVIO equipaggia / usa · I o ESC per chiudere',
     equipped: 'in pugno',
     empty: 'La borsa è vuota.',
@@ -214,6 +295,9 @@ export const STRINGS_IT: Strings = {
   level: {
     goal: 'Avanza verso il braciere  ▸',
     rest: 'INVIO: riposa al braciere e affronta il custode',
+    restNext: 'INVIO: riposa al braciere e prosegui il cammino',
+    world: 'MONDO',
+    path: 'CAMMINO',
   },
 
   // novità Fase 8: pausa e impostazioni

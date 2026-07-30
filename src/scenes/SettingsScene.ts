@@ -180,7 +180,7 @@ export class SettingsScene extends Phaser.Scene {
   }
 
   private persist(): void {
-    SaveManager.save();
+    SaveManager.saveSettings();
     gameEvents.emit('settings:changed', settings);
   }
 

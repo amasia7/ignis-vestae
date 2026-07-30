@@ -20,11 +20,14 @@ Comandi in gioco: `◀ ▶` muoversi · `↑` salto · `A` colpo · `Q` pesante 
 recap è sempre visibile in alto a sinistra). Touch e gamepad supportati;
 tasti rimappabili dalle impostazioni (`O` dal titolo).
 
-La run: tre **livelli a scorrimento** con mini-nemici e oggetti da
-raccogliere, ognuno chiuso da un braciere che ristora e apre lo scontro
-col custode. Le **armi sono staccate dal personaggio**: slot dedicato
-nell'HUD, altre armi e oggetti si trovano nei livelli e si gestiscono
-dalla borsa (`I`).
+La run: **tre mondi, cinque cammini a scorrimento ciascuno** (durata
+crescente, sfondo condiviso per mondo), poi il custode del mondo. Nei
+cammini si nascondono **urne segrete** (un'arma e una benedizione per
+mondo: spezzale con un colpo) e ogni custode lascia un **bottino**
+(arma o benedizione permanente). Le **armi sono staccate dal
+personaggio**: slot dedicato nell'HUD, gestione dalla borsa (`I`).
+Dal menu: **3 slot di salvataggio** e la rigiocata dei **cammini
+completati** (voce LIVELLI).
 
 In dev, `F1` in combattimento apre l'overlay di debug (FPS, hitbox, stati,
 salto ai boss, hp del boss). È escluso dalla build di produzione.
@@ -60,7 +63,9 @@ salto ai boss, hp del boss). È escluso dalla build di produzione.
 
 Documentazione completa in `docs/ARCHITECTURE.md`; piano e criteri di
 accettazione in `docs/MIGRATION-PLAN.md`; note su valori dubbi e bug legacy
-in `docs/BALANCE-NOTES.md` e `docs/KNOWN-ISSUES.md`.
+in `docs/BALANCE-NOTES.md` e `docs/KNOWN-ISSUES.md`. Per generare artwork e
+musica con un'altra AI: `docs/AI-ASSETS.md`. Piano di espansione:
+`docs/ROADMAP.md`.
 
 ## Sostituire un artwork
 

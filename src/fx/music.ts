@@ -2,6 +2,24 @@ import { settings } from '../core/settings';
 import { getAudioContext, initAudio } from './audio';
 
 /**
+ * Come per le texture, un file reale VINCE sulla musica procedurale:
+ * metti `assets/audio/title.ogg` (o .mp3) e diventa la musica del titolo,
+ * senza toccare codice. Chiavi previste: title (menu), world1..world3,
+ * boss1..boss3 (per ora è usata solo `title`; le altre sono riservate).
+ */
+const AUDIO_FILES = import.meta.glob('/assets/audio/*.{ogg,mp3}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+
+export function audioFileFor(key: string): string | null {
+  return AUDIO_FILES[`/assets/audio/${key}.ogg`] ?? AUDIO_FILES[`/assets/audio/${key}.mp3`] ?? null;
+}
+
+let fileAudio: HTMLAudioElement | null = null;
+
+/**
  * Musica d'intro sintetizzata in WebAudio, nello stesso linguaggio sonoro
  * dei beep di gioco: un bordone grave (re) e una salmodia lenta su scala
  * minore, come un canto al braciere. Nessun file audio: tutto procedurale.
@@ -34,6 +52,20 @@ function playNote(ctx: AudioContext, freq: number, gain: number, durS: number): 
 
 /** Avvia la musica del titolo (idempotente; parte solo ad audio sbloccato). */
 export function startTitleMusic(): void {
+  // un file in assets/audio vince sulla musica procedurale
+  const fileUrl = audioFileFor('title');
+  if (fileUrl) {
+    if (fileAudio) return;
+    fileAudio = new Audio(fileUrl);
+    fileAudio.loop = true;
+    fileAudio.volume = Math.min(1, 0.7 * settings.volume);
+    // il browser può negare l'avvio prima del primo gesto: si riproverà
+    fileAudio.play().catch(() => {
+      fileAudio = null;
+    });
+    return;
+  }
+
   initAudio();
   const ctx = getAudioContext();
   if (!ctx || ctx.state !== 'running' || master) return;
@@ -73,6 +105,10 @@ export function startTitleMusic(): void {
 }
 
 export function stopTitleMusic(): void {
+  if (fileAudio) {
+    fileAudio.pause();
+    fileAudio = null;
+  }
   const ctx = getAudioContext();
   if (timer) {
     clearInterval(timer);

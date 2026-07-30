@@ -3,6 +3,8 @@ import { GROUND, H, PHYSICS_BOUNDS, W } from '../config/game.config';
 import { ABILITIES, FIGHT } from '../config/balance';
 import { strings } from '../data/i18n';
 import { RUN } from '../core/RunState';
+import { BOSS_DROPS } from '../data/buffs';
+import type { WeaponId } from '../data/weapons';
 import { SaveManager } from '../core/SaveManager';
 import { gameEvents } from '../core/EventBus';
 import { InputManager } from '../input/InputManager';
@@ -169,6 +171,12 @@ export class FightScene extends Phaser.Scene implements CombatHost, BossHost {
       b.clearMarks();
       RUN.grantRelic(RUN.bossIdx);
       RUN.recordTime(RUN.bossIdx, this.fightTimeMs);
+      // bottino del custode: un'arma o una benedizione permanente
+      const drop = BOSS_DROPS[RUN.bossIdx];
+      if (drop) {
+        if (drop.kind === 'weapon') RUN.addWeapon(drop.id as WeaponId);
+        else RUN.addBuff(drop.id);
+      }
       SaveManager.save();
       gameEvents.emit('relic:gained', { relicIdx: RUN.bossIdx });
       gameEvents.emit('boss:death', { bossIdx: RUN.bossIdx, fightTimeMs: this.fightTimeMs });

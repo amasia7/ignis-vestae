@@ -44,6 +44,7 @@ export class Player {
   readonly mfl: number;
   fl: number;
   readonly abMax: number;
+  readonly baseSpeed: number;
   abCd = 0;
   haste = 0;
   inv = 0;
@@ -65,9 +66,11 @@ export class Player {
     const c = CLASSES[this.classIdx];
     if (!c) throw new Error(`Classe inesistente: ${this.classIdx}`);
     this.c = c;
-    this.mhp = c.hp;
-    this.hp = c.hp;
-    this.stamina = new Stamina(c.stamina);
+    // benedizioni permanenti della run (segreti e bottini dei custodi)
+    this.mhp = c.hp + RUN.buffTotal('maxHp');
+    this.hp = this.mhp;
+    this.stamina = new Stamina(c.stamina + RUN.buffTotal('stamina'));
+    this.baseSpeed = c.speed * (1 + RUN.buffTotal('speedPct') / 100);
     this.mfl = RUN.maxFlasks(c.flasks);
     this.fl = this.mfl;
     this.abMax = c.abilityCooldownMs;
@@ -79,7 +82,7 @@ export class Player {
     body.setOffset(PLAYER.body.offsetX, PLAYER.body.offsetY);
     s.setCollideWorldBounds(true);
     s.setDragX(PLAYER.dragX);
-    body.maxVelocity.x = c.speed;
+    body.maxVelocity.x = this.baseSpeed;
     body.maxVelocity.y = PLAYER.maxVelY;
     this.spr = s;
     this.weapon = new PlayerWeapon(scene, this.classIdx, s.x, s.y);
@@ -290,7 +293,7 @@ export class Player {
 
     const g = this.grounded();
     this.jumpTimers.update(dt, g, input.justPressed('JUMP'));
-    const spd = this.c.speed * (this.haste > 0 ? ABILITIES.haste.speedMult : 1);
+    const spd = this.baseSpeed * (this.haste > 0 ? ABILITIES.haste.speedMult : 1);
     body.maxVelocity.x = this.sm.is('roll') ? PLAYER.roll.maxVelocity : spd;
 
     if (this.sm.is('free')) {

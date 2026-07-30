@@ -7,7 +7,7 @@ import { equus } from './generated/equus';
 import { ghost, hand } from './generated/cornelia';
 import { statue } from './generated/palladio';
 import { spear, brazier } from './generated/props';
-import { gladius, balsamo } from './generated/pickups';
+import { gladius, balsamo, falx, dolabra, hasta, sigil, urn } from './generated/pickups';
 import { shade, larva } from './generated/enemies';
 
 /**
@@ -42,6 +42,11 @@ export const TEXTURES = {
   balsamo: { size: [20, 20], origin: [0.5, 0.5], generator: balsamo },
   shade: { size: [40, 64], origin: [0.5, 1], generator: shade },
   larva: { size: [36, 22], origin: [0.5, 1], generator: larva },
+  wp4: { size: [44, 14], origin: [0.12, 0.5], generator: falx },
+  wp5: { size: [44, 16], origin: [0.12, 0.5], generator: dolabra },
+  wp6: { size: [52, 10], origin: [0.12, 0.5], generator: hasta },
+  sigil: { size: [22, 22], origin: [0.5, 0.5], generator: sigil },
+  urn: { size: [30, 38], origin: [0.5, 1], generator: urn },
   // @scaffold:texture — new:boss e new:class inseriscono qui
 } as const satisfies Record<string, TextureEntry>;
 

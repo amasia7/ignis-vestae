@@ -4,7 +4,7 @@
  * un oggetto equipaggiabile — altre armi si trovano nei livelli e si
  * selezionano dalla borsa (tasto I).
  */
-export type WeaponId = 'secespita' | 'spatha' | 'lituus' | 'gladius'; // @scaffold:weapon-id
+export type WeaponId = 'secespita' | 'spatha' | 'lituus' | 'gladius' | 'falx' | 'dolabra' | 'hasta'; // @scaffold:weapon-id
 
 export interface WeaponData {
   readonly id: WeaponId;
@@ -18,8 +18,12 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponData>> = {
   secespita: { id: 'secespita', textureKey: 'wp0', damageMult: 1 },
   spatha: { id: 'spatha', textureKey: 'wp1', damageMult: 1 },
   lituus: { id: 'lituus', textureKey: 'wp2', damageMult: 1 },
-  // trovabile nei livelli: il ferro dei legionari, consacrato a dovere
+  // bottino di Equus October
   gladius: { id: 'gladius', textureKey: 'wp3', damageMult: 1.1 },
+  // segreti dei tre mondi
+  falx: { id: 'falx', textureKey: 'wp4', damageMult: 1.05 },
+  dolabra: { id: 'dolabra', textureKey: 'wp5', damageMult: 1.15 },
+  hasta: { id: 'hasta', textureKey: 'wp6', damageMult: 1.25 },
   // @scaffold:weapon-data
 };
 

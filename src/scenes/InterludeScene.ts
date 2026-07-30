@@ -2,6 +2,8 @@ import Phaser from 'phaser';
 import { GROUND, H, W } from '../config/game.config';
 import { strings } from '../data/i18n';
 import { RUN, BOSS_COUNT } from '../core/RunState';
+import { BOSS_DROPS } from '../data/buffs';
+import type { WeaponId } from '../data/weapons';
 import { SaveManager } from '../core/SaveManager';
 import { IS_TOUCH } from '../input/device';
 import { GamepadMenu } from '../input/GamepadMenu';
@@ -44,6 +46,13 @@ export class InterludeScene extends Phaser.Scene {
       lineSpacing: 6,
     }).setDepth(2);
     T(this, W / 2, 352, relic.fx, 16, '#9fd0ea').setDepth(2);
+    // bottino del custode (arma o benedizione)
+    const drop = BOSS_DROPS[idx];
+    if (drop) {
+      const entry = drop.kind === 'weapon' ? s.weapons[drop.id as WeaponId] : s.buffs[drop.id];
+      T(this, W / 2, 396, `${s.interlude.bounty}  —  ${entry.name}`, 15, '#e8cf7a').setDepth(2);
+      T(this, W / 2, 418, entry.fx, 12, '#9fd0ea').setDepth(2);
+    }
     const go = T(
       this,
       W / 2,

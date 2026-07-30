@@ -2,6 +2,7 @@ import type { Action } from '../input/actions';
 import type { BossId } from './bosses';
 import type { WeaponId } from './weapons';
 import type { ItemId } from './items';
+import type { BuffId } from './buffs';
 
 /**
  * Forma del bundle di stringhe. Ogni lingua (strings.it.ts oggi, strings.en.ts
@@ -47,6 +48,35 @@ export interface Strings {
     readonly continuePrefix: string;
     readonly settingsHint: string;
   };
+  /** Menu principale a voci. */
+  readonly menu: {
+    readonly newGame: string;
+    readonly continue: string;
+    readonly levels: string;
+    readonly settings: string;
+    readonly info: string;
+    readonly hint: string;
+  };
+  readonly slots: {
+    readonly titleNew: string;
+    readonly titleContinue: string;
+    readonly titleLevels: string;
+    readonly empty: string;
+    readonly slot: string;
+    readonly overwrite: string;
+    readonly hint: string;
+  };
+  readonly levelSelect: {
+    readonly title: string;
+    readonly hint: string;
+    readonly none: string;
+    readonly world: string;
+    readonly path: string;
+  };
+  readonly info: {
+    readonly title: string;
+    readonly body: string;
+  };
   readonly select: {
     readonly heading: string;
     readonly hintTouch: string;
@@ -77,6 +107,7 @@ export interface Strings {
     readonly heading: string;
     readonly nextTouch: string;
     readonly nextKey: string;
+    readonly bounty: string;
   };
   readonly victory: {
     readonly title: string;
@@ -102,10 +133,15 @@ export interface Strings {
   readonly items: Readonly<
     Record<ItemId, { readonly name: string; readonly desc: string; readonly fx: string }>
   >;
+  /** Benedizioni permanenti (segreti dei mondi e bottini dei custodi). */
+  readonly buffs: Readonly<
+    Record<BuffId, { readonly name: string; readonly desc: string; readonly fx: string }>
+  >;
   readonly inventory: {
     readonly title: string;
     readonly weaponsHeader: string;
     readonly itemsHeader: string;
+    readonly buffsHeader: string;
     readonly hint: string;
     readonly equipped: string;
     readonly empty: string;
@@ -115,6 +151,9 @@ export interface Strings {
   readonly level: {
     readonly goal: string;
     readonly rest: string;
+    readonly restNext: string;
+    readonly world: string;
+    readonly path: string;
   };
   /** Novità Fase 8: pausa e impostazioni (non presenti nel legacy). */
   readonly pause: {
