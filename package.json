@@ -17,7 +17,8 @@
     "art:preview": "vite --open /art-preview.html",
     "new:boss": "node scripts/new-boss.mjs",
     "new:class": "node scripts/new-class.mjs",
-    "new:scene": "node scripts/new-scene.mjs"
+    "new:scene": "node scripts/new-scene.mjs",
+    "assets:check": "node scripts/check-assets.mjs"
   },
   "dependencies": {
     "phaser": "^3.90.0"

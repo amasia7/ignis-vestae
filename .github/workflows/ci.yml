@@ -27,6 +27,9 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      - name: Validazione asset (assets/*.png vs manifest)
+        run: npm run assets:check
+
       - name: Test
         run: npm run test
 
