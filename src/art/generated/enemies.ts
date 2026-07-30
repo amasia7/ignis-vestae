@@ -111,6 +111,42 @@ export function archer(g: Phaser.GameObjects.Graphics): void {
   g.fillCircle(35, 43, 2.5); // fiamme sulle punte dell'arco
 }
 
+/**
+ * hound — 56x40: segugio infernale nero, collare chiodato e crepe di brace
+ * (dall'asset di riferimento; nemico medio dei livelli futuri). Zampe a y=40.
+ */
+export function hound(g: Phaser.GameObjects.Graphics): void {
+  // zampe
+  g.fillStyle(0x16120f, 1);
+  g.fillRect(10, 30, 5, 10);
+  g.fillRect(20, 30, 5, 10);
+  g.fillRect(34, 30, 5, 10);
+  g.fillRect(44, 30, 5, 10);
+  // corpo e testa
+  g.fillStyle(0x1e1a16, 1);
+  g.fillEllipse(28, 24, 40, 18);
+  g.fillEllipse(46, 16, 16, 12); // testa
+  g.fillTriangle(40, 8, 44, 14, 48, 10); // orecchio
+  // crepe di brace sul fianco
+  g.lineStyle(1.5, 0xff3a1e, 0.9);
+  g.beginPath();
+  g.moveTo(14, 22);
+  g.lineTo(20, 26);
+  g.lineTo(26, 22);
+  g.moveTo(30, 27);
+  g.lineTo(36, 23);
+  g.strokePath();
+  // collare chiodato
+  g.fillStyle(0x54493c, 1);
+  g.fillRect(38, 18, 4, 10);
+  g.fillStyle(0xc9c9c9, 1);
+  g.fillTriangle(37, 20, 34, 21, 37, 23);
+  g.fillTriangle(43, 20, 46, 21, 43, 23);
+  // occhio di brace
+  g.fillStyle(0xff3a1e, 1);
+  g.fillCircle(49, 14, 2);
+}
+
 /** larva — 36x22: verme di brace, striscia a terra. Ventre a y=22. */
 export function larva(g: Phaser.GameObjects.Graphics): void {
   g.fillStyle(0x3a2018, 1);

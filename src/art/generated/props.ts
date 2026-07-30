@@ -56,6 +56,33 @@ export function scutum(g: Phaser.GameObjects.Graphics): void {
   g.strokePath();
 }
 
+/**
+ * aquila — 44x116, insegna legionaria: asta, vessillo rosso, aquila d'oro
+ * ad ali spiegate e serto d'alloro (dall'asset di riferimento). Base a y=116.
+ */
+export function aquila(g: Phaser.GameObjects.Graphics): void {
+  g.lineStyle(3.5, 0x8a6a3a, 1);
+  g.beginPath();
+  g.moveTo(22, 116);
+  g.lineTo(22, 26);
+  g.strokePath(); // asta
+  g.fillStyle(0xa4302a, 1);
+  g.fillRect(8, 46, 28, 22); // vexillum rosso
+  g.fillStyle(0xe8c34a, 1);
+  g.fillRect(6, 42, 32, 4); // traversa dorata
+  // aquila ad ali spiegate
+  g.fillStyle(0xe8c34a, 1);
+  g.fillTriangle(22, 10, 4, 24, 20, 26); // ala sinistra
+  g.fillTriangle(22, 10, 40, 24, 24, 26); // ala destra
+  g.fillEllipse(22, 20, 10, 14); // corpo
+  g.fillCircle(22, 9, 4); // capo
+  g.fillStyle(0x11150f, 1);
+  g.fillRect(23, 7, 2, 2); // occhio
+  // serto d'alloro attorno alla base dell'aquila
+  g.lineStyle(2, 0x5a7a3a, 1);
+  g.strokeCircle(22, 30, 8);
+}
+
 /** brazier — 72x40, braciere (legacy r. 177-179). */
 export function brazier(g: Phaser.GameObjects.Graphics): void {
   g.fillStyle(0x3a2a14, 1);

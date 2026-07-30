@@ -6,9 +6,19 @@ import { btn, btnsm } from './generated/ui';
 import { equus } from './generated/equus';
 import { ghost, hand } from './generated/cornelia';
 import { statue } from './generated/palladio';
-import { spear, brazier, scutum, platform, arrow } from './generated/props';
-import { gladius, balsamo, incenso, falx, dolabra, hasta, sigil, urn } from './generated/pickups';
-import { shade, larva, warrior, archer } from './generated/enemies';
+import { spear, brazier, scutum, platform, arrow, aquila } from './generated/props';
+import {
+  gladius,
+  balsamo,
+  incenso,
+  falx,
+  dolabra,
+  hasta,
+  flammeus,
+  sigil,
+  urn,
+} from './generated/pickups';
+import { shade, larva, warrior, archer, hound } from './generated/enemies';
 
 /**
  * Manifest delle texture: chiave → dimensioni, origine, generatore.
@@ -50,6 +60,9 @@ export const TEXTURES = {
   wp4: { size: [44, 14], origin: [0.12, 0.5], generator: falx },
   wp5: { size: [44, 16], origin: [0.12, 0.5], generator: dolabra },
   wp6: { size: [52, 10], origin: [0.12, 0.5], generator: hasta },
+  wp7: { size: [46, 14], origin: [0.12, 0.5], generator: flammeus },
+  hound: { size: [56, 40], origin: [0.5, 1], generator: hound },
+  aquila: { size: [44, 116], origin: [0.5, 1], generator: aquila },
   sigil: { size: [22, 22], origin: [0.5, 0.5], generator: sigil },
   scutum: { size: [26, 36], origin: [0.5, 0.5], generator: scutum },
   urn: { size: [30, 38], origin: [0.5, 1], generator: urn },

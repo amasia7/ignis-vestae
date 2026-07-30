@@ -67,5 +67,5 @@ export type BossDrop = { kind: 'weapon'; id: string } | { kind: 'buff'; id: Buff
 export const BOSS_DROPS: readonly BossDrop[] = [
   { kind: 'weapon', id: 'gladius' }, // Equus October
   { kind: 'buff', id: 'veloSepolta' }, // Cornelia
-  { kind: 'buff', id: 'sigilloVesta' }, // Il Palladio
+  { kind: 'weapon', id: 'flammeus' }, // Il Palladio: l'ENSIS FLAMMEUS
 ];

@@ -24,6 +24,7 @@ import { beep } from '../fx/audio';
 import { puff, ringFx } from '../fx/particles';
 import { shake } from '../fx/screenShake';
 import { showDeathOverlay } from '../ui/deathOverlay';
+import { sceneMusic } from '../fx/music';
 import { T } from '../ui/text';
 import { buildLevelBackground } from './levelBackground';
 import type { WeaponId } from '../data/weapons';
@@ -139,9 +140,13 @@ export class LevelScene extends Phaser.Scene implements CombatHost, EnemyHost {
     for (const u of level.urns)
       if (!RUN.hasSecret(u.uid)) this.urns.push(new Urn(this, u.x, u.content, u.uid));
 
-    // braciere-checkpoint in fondo al cammino
+    // braciere-checkpoint in fondo al cammino, con l'aquila legionaria
     this.brazierX = level.width - 140;
     this.add.image(this.brazierX, GROUND, 'brazier').setOrigin(0.5, 1).setDepth(1);
+    this.add
+      .image(this.brazierX + 66, GROUND, 'aquila')
+      .setOrigin(0.5, 1)
+      .setDepth(0);
 
     // HUD sopra il livello
     if (this.scene.isActive('hud') || this.scene.isSleeping('hud')) this.scene.stop('hud');
@@ -164,6 +169,8 @@ export class LevelScene extends Phaser.Scene implements CombatHost, EnemyHost {
       .setScrollFactor(0)
       .setDepth(11);
     this.tweens.add({ targets: [label, goal], alpha: 0, duration: 900, delay: 2400 });
+    // tappeto sonoro di gioco: quieto, adatto alle sessioni lunghe
+    sceneMusic(this, 'game');
     beep(60, 0.5, 'sine', 0.04, -10);
   }
 

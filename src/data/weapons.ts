@@ -4,7 +4,8 @@
  * un oggetto equipaggiabile — altre armi si trovano nei livelli e si
  * selezionano dalla borsa (tasto I).
  */
-export type WeaponId = 'secespita' | 'spatha' | 'lituus' | 'gladius' | 'falx' | 'dolabra' | 'hasta'; // @scaffold:weapon-id
+export type WeaponId =
+  'secespita' | 'spatha' | 'lituus' | 'gladius' | 'falx' | 'dolabra' | 'hasta' | 'flammeus'; // @scaffold:weapon-id
 
 export interface WeaponData {
   readonly id: WeaponId;
@@ -24,6 +25,8 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponData>> = {
   falx: { id: 'falx', textureKey: 'wp4', damageMult: 1.05 },
   dolabra: { id: 'dolabra', textureKey: 'wp5', damageMult: 1.15 },
   hasta: { id: 'hasta', textureKey: 'wp6', damageMult: 1.25 },
+  // bottino del Palladio: la spada fiammeggiante dall'elsa d'oro
+  flammeus: { id: 'flammeus', textureKey: 'wp7', damageMult: 1.3 },
   // @scaffold:weapon-data
 };
 

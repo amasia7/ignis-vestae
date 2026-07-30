@@ -22,6 +22,7 @@ import { Wave } from '../entities/hazards/Wave';
 import { Bolt } from '../entities/hazards/Bolt';
 import { circHitPlayer, rectHitPlayer } from '../entities/hitTests';
 import { showDeathOverlay } from '../ui/deathOverlay';
+import { sceneMusic } from '../fx/music';
 import { beep } from '../fx/audio';
 import { puff, ringFx } from '../fx/particles';
 import { shake } from '../fx/screenShake';
@@ -101,6 +102,7 @@ export class FightScene extends Phaser.Scene implements CombatHost, BossHost {
     this.banner(bs.name, bs.sub);
     // legenda dei telegrafi colorati, discreta sotto la barra del boss
     T(this, W / 2, H - 20, strings().fight.legend, 11, 'rgba(163,146,122,0.75)').setDepth(10);
+    sceneMusic(this, 'game');
     beep(60, 0.6, 'sine', 0.05, -20);
   }
 

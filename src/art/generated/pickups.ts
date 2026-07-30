@@ -78,6 +78,30 @@ export function hasta(g: Phaser.GameObjects.Graphics): void {
   g.fillRect(34, 2, 3, 6);
 }
 
+/** wp7 — ensis flammeus 46x14: gladio dall'elsa dorata avvolto di fiamme. */
+export function flammeus(g: Phaser.GameObjects.Graphics): void {
+  g.fillStyle(0x2c2620, 1);
+  g.fillRect(0, 5, 8, 4); // impugnatura scura
+  g.fillStyle(0xe8c34a, 1);
+  g.fillRect(7, 2, 4, 10); // guardia dorata
+  g.fillCircle(2, 7, 2.5); // pomolo
+  g.fillStyle(0xefe3c0, 1);
+  g.fillPoints(
+    [
+      { x: 11, y: 4 },
+      { x: 42, y: 4 },
+      { x: 45, y: 7 },
+      { x: 42, y: 10 },
+      { x: 11, y: 10 },
+    ],
+    true,
+  ); // lama
+  g.fillStyle(0xff9a3c, 0.85);
+  g.fillTriangle(16, 4, 20, 0, 24, 4);
+  g.fillTriangle(26, 4, 30, 1, 34, 4);
+  g.fillTriangle(21, 10, 25, 13, 29, 10); // lingue di fuoco
+}
+
 /** sigil — 22x22: sigillo delle benedizioni (tinto per colore a runtime). */
 export function sigil(g: Phaser.GameObjects.Graphics): void {
   g.lineStyle(2, 0xffffff, 0.95);

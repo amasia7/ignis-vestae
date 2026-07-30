@@ -249,6 +249,11 @@ export const STRINGS_IT: Strings = {
       desc: 'L’asta senza ferro dei trionfi, ma questa una punta ce l’ha: fu intinta nel fuoco sacro.',
       fx: 'In pugno: danno aumentato del 25%.',
     },
+    flammeus: {
+      name: 'ENSIS FLAMMEUS',
+      desc: 'Il gladio dall’elsa d’oro che il Palladio custodiva. La lama arde di fuoco votivo che non consuma chi lo impugna.',
+      fx: 'In pugno: danno aumentato del 30%.',
+    },
   },
   items: {
     balsamo: {

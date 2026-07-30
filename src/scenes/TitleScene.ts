@@ -3,7 +3,7 @@ import { H, W } from '../config/game.config';
 import { strings } from '../data/i18n';
 import { GamepadMenu } from '../input/GamepadMenu';
 import { beep, initAudio } from '../fx/audio';
-import { startTitleMusic, stopTitleMusic } from '../fx/music';
+import { sceneMusic } from '../fx/music';
 import { T } from '../ui/text';
 
 interface MenuEntry {
@@ -25,12 +25,9 @@ export class TitleScene extends Phaser.Scene {
     const s = strings();
     this.cameras.main.setBackgroundColor('#000000');
 
-    // musica d'intro: parte appena l'audio è sbloccato dal primo gesto
-    startTitleMusic();
-    const tryMusic = (): void => startTitleMusic();
-    this.input.keyboard?.on('keydown', tryMusic);
-    this.input.on('pointerdown', tryMusic);
-    this.events.once('shutdown', () => stopTitleMusic());
+    // musica del menu: parte appena l'audio è sbloccato dal primo gesto;
+    // resta accesa nei sottomenu, la cambia la prima scena di gioco
+    sceneMusic(this, 'title');
 
     T(this, W / 2, 140, s.title.logo, 58, '#c9a227');
     T(this, W / 2, 182, s.title.subtitle, 18, '#8d7c5c');

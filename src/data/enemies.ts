@@ -6,7 +6,7 @@ import type { ItemId } from './items';
  * I livelli attuali mescolano guerrieri e arcieri; ombra e larva restano
  * disponibili per livelli futuri.
  */
-export type EnemyId = 'guerriero' | 'arciere' | 'ombra' | 'larva'; // @scaffold:enemy-id
+export type EnemyId = 'guerriero' | 'arciere' | 'segugio' | 'ombra' | 'larva'; // @scaffold:enemy-id
 
 export interface EnemyData {
   readonly id: EnemyId;
@@ -76,6 +76,26 @@ export const ENEMIES: Readonly<Record<EnemyId, EnemyData>> = {
     glowTint: 0x8ac878,
     floats: false,
     ranged: { arrowSpeed: 430, arrowDamage: 9, retreatRange: 150 },
+  },
+  // segugio infernale: il nemico MEDIO pronto per i livelli futuri —
+  // veloce, morde forte, va affrontato con rispetto (non ancora spawnnato)
+  segugio: {
+    id: 'segugio',
+    textureKey: 'hound',
+    hp: 75,
+    moveSpeed: 170,
+    aggroRange: 420,
+    attackRange: 58,
+    windupMs: 340,
+    hit: { radius: 46, damage: 15, knockback: 260 },
+    recoverMs: 240,
+    cooldownMs: 800,
+    hurtbox: { w: 50, h: 38 },
+    dropChance: 0.1,
+    dropItem: 'incenso',
+    glowTint: 0xff3a1e,
+    floats: false,
+    ranged: null,
   },
   // spettro minore delle sepolte: lento, colpo ampio telegrafato
   ombra: {
