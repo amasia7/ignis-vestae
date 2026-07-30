@@ -13,8 +13,8 @@ miglior rapporto resa/sforzo.
    roll 3f) via spritesheet — il manifest supporta già `frames`.
 2. **Boss illustrati**: Equus, Cornelia e Palladio generati con l'AI a
    partire dai prompt in `docs/AI-ASSETS.md`.
-3. **Musica**: `title.ogg` + una traccia per mondo + una per i boss
-   (chiavi già riservate), con crossfade ai passaggi.
+3. **Musica**: `title.ogg` e `game.ogg` sono già attive come chiavi; poi
+   una traccia per mondo + una per i boss (riservate), con crossfade.
 4. **Effetti sonori campionati** al posto dei beep (estensione del
    manifest agli sfx: colpo, roll, morte, urna, raccolta).
 5. **Parallasse negli sfondi dei cammini** (2-3 piani) e nebbia bassa.
@@ -25,8 +25,10 @@ miglior rapporto resa/sforzo.
    portata, un tratto speciale ciascuna (la falx ignora parte della
    guardia, l'hasta colpisce più lontano, la dolabra spezza le urne da
    lontano…). I dati sono già in `data/weapons.ts`: si aggiungono campi.
-2. **2-3 nemici nuovi per mondo** (già data-driven): un lanciatore a
-   distanza, uno scudato che chiede il colpo pesante, uno esplosivo.
+2. **2-3 nemici nuovi per mondo** (già data-driven): il SEGUGIO infernale
+   è già pronto in `data/enemies.ts` (id `segugio`, texture `hound`) come
+   primo nemico medio — basta aggiungerlo agli spawn di `data/worlds.ts`;
+   poi uno scudato che chiede il colpo pesante e uno esplosivo.
 3. **Elite**: varianti rare dei nemici (più grandi, tinta diversa, drop
    garantito) piazzate dal generatore dei livelli.
 4. **Mini-boss di metà mondo** al cammino III: un nemico elite con barra
@@ -59,7 +61,9 @@ miglior rapporto resa/sforzo.
 
 ## Nord stelle (da tenere a mente a ogni ondata)
 
-- Il game feel dei tre boss legacy è sacro: i test lo blindano.
+- Il game feel legacy resta il riferimento DOVE il committente non ha
+  chiesto altro; le divergenze volute sono elencate in BALANCE-NOTES §6 e
+  blindate dai test come i valori originali.
 - Tutto ciò che è contenuto (nemici, livelli, armi, buff, testi) resta
   **dati**, mai codice: è ciò che rende il gioco espandibile in un weekend.
 - Ogni asset resta sostituibile via `assets/` senza toccare il codice.

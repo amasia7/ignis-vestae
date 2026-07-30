@@ -58,6 +58,7 @@ codice — chiedila pure a Claude o falla a mano: è una PR di una riga).
 | `wp4`  | falx votiva (falce)              | 44×14      |
 | `wp5`  | dolabra (piccone-scure)          | 44×16      |
 | `wp6`  | hasta pura (asta)                | 52×10      |
+| `wp7`  | ensis flammeus (gladio in fiamme, elsa d'oro) | 46×14 |
 
 > _side-view weapon sprite, ancient roman gladius, hilt on the LEFT, blade
 > pointing RIGHT, 44x12 px, transparent background, muted gold and bone
@@ -70,8 +71,11 @@ codice — chiedila pure a Claude o falla a mano: è una PR di una riga).
 | `equus`  | Equus October, cavallo spettrale in fiamme | 190×120    |
 | `ghost`  | Cornelia, la Sepolta Viva                  | 64×112     |
 | `statue` | Il Palladio, statua-custode con scudo      | 64×120     |
-| `shade`  | ombra minore (nemico dei cammini)          | 40×64      |
-| `larva`  | larva di brace (nemico dei cammini)        | 36×22      |
+| `warrior`| guerriero rinnegato (scudo tondo, gladio, sciarpa rossa) | 44×64 |
+| `archer` | arciere scheletrico verdastro con arco fiammeggiante | 40×62 |
+| `hound`  | segugio infernale nero, collare chiodato, crepe di brace (nemico medio futuro) | 56×40 |
+| `shade`  | ombra minore (riservata a livelli futuri)  | 40×64      |
+| `larva`  | larva di brace (riservata a livelli futuri) | 36×22      |
 
 Nota per il boss: il gioco lo specchia via `scaleX` — disegnalo **rivolto a
 destra**. Il Palladio in fase 2 viene tinto d'oro dal gioco: usa una base
@@ -82,6 +86,7 @@ quasi bianca/neutra.
 | Chiave                      | Cosa                                                             | Dimensioni   |
 | --------------------------- | ---------------------------------------------------------------- | ------------ |
 | `balsamo`                   | ampollina curativa                                               | 20×20        |
+| `incenso`                   | grani d'incenso in coppa (ridona vigore)                         | 20×20        |
 | `sigil`                     | sigillo delle benedizioni (il gioco lo tinge) — disegnalo BIANCO | 22×22        |
 | `urn`                       | urna dei segreti                                                 | 30×38        |
 | `brazier`                   | braciere                                                         | 72×40        |
@@ -89,6 +94,10 @@ quasi bianca/neutra.
 | `hand`                      | mano che erompe dal suolo                                        | 28×48        |
 | `warn`                      | marchio a terra (ellisse)                                        | 76×18        |
 | `flameglow`                 | bagliore della fiamma a terra                                    | 60×18        |
+| `scutum`                    | scudo ovale del Sacerdote (parata)                               | 26×36        |
+| `platform`                  | lastra di pietra sospesa (scalata in larghezza)                  | 160×18       |
+| `arrow`                     | freccia di brace degli arcieri (punta a destra)                  | 30×6         |
+| `aquila`                    | insegna legionaria: aquila d'oro, vessillo rosso, alloro         | 44×116       |
 | `slash` `bolt` `dot` `ring` | effetti                                                          | vedi preview |
 | `btn` `btnsm`               | tasti del pad touch                                              | 62×62, 50×50 |
 
@@ -101,9 +110,10 @@ quasi bianca/neutra.
 
 | Chiave                     | Dove suona            | Stato                                        |
 | -------------------------- | --------------------- | -------------------------------------------- |
-| `title`                    | menu principale       | attiva (sostituisce la salmodia procedurale) |
-| `world1` `world2` `world3` | cammini dei tre mondi | riservata (si attiva su richiesta)           |
-| `boss1` `boss2` `boss3`    | scontri coi custodi   | riservata                                    |
+| `title`                    | menu principale                | attiva (sostituisce il canto procedurale)  |
+| `game`                     | livelli e boss fight           | attiva (sostituisce il tappeto procedurale) |
+| `world1` `world2` `world3` | cammini dei tre mondi          | riservata (si attiva su richiesta)          |
+| `boss1` `boss2` `boss3`    | scontri coi custodi            | riservata                                   |
 
 Prompt d'esempio per un'AI musicale:
 
@@ -126,3 +136,16 @@ logica del manifest) — è nella ROADMAP.
 4. Stile di riferimento: notturno, terroso, oro/brace su fondi scuri
    (#c9a227, #ff9a3c, #8e2f2f su #070509) — guarda gli attuali placeholder
    per capire l'ingombro e la silhouette che il gioco si aspetta.
+
+## Gli asset «incollati in chat»
+
+Le immagini incollate in una chat con Claude **non arrivano come file**: nel
+progetto sono state rese come placeholder procedurali fedeli alla
+descrizione. Per usare i pixel-art originali, carica i PNG con queste chiavi
+(dimensioni esatte, sfondo trasparente, soggetto rivolto a destra):
+
+- `assets/warrior.png` 44×64 — guerriero con scudo e sciarpa rossa
+- `assets/archer.png` 40×62 — scheletro arciere verdastro
+- `assets/hound.png` 56×40 — segugio infernale
+- `assets/wp7.png` 46×14 — spada fiammeggiante (impugnatura a sinistra)
+- `assets/aquila.png` 44×116 — insegna con l'aquila

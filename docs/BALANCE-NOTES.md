@@ -28,3 +28,41 @@ del committente.
 5. **Il dardo di FIAMMA VOTIVA (26·mult) beneficia di MOLA SALSA** come i colpi in
    mischia e IRA SACRILEGA (tutti passano da `mult`), quindi la reliquia potenzia anche
    le abilità, non solo "il ferro" come dice il testo. → Migrato com'è.
+
+---
+
+## §6 — Divergenze VOLUTE dal legacy (rework del 2026-07)
+
+Dal grande rework richiesto dal committente («non attenerti alla pagina web
+html iniziale») questi valori DIVERGONO deliberatamente dal legacy. La regola
+«i numeri non si toccano» resta valida per tutto il resto.
+
+6.1 **Salto potenziato per la verticalità** (`config/balance.ts`):
+    jumpVelocity −560 → **−680**, jumpCutVelocity −220 → **−260**,
+    coyoteMs 90 → **120**, jumpBufferMs 130 → **160**. Serve a rendere il
+    platforming dei nuovi livelli (piattaforme a quota 350 e 258) comodo.
+
+6.2 **Roll riscritto, +30% di efficacia**: velocity 580 → **754**,
+    maxVelocity 620 → **806**, durationMs 380 → **460**, i-frame 50–300 →
+    **40–370**. L'animazione è una capriola completa (rotazione 2π).
+
+6.3 **Attacco a tasto unico**: niente più tasto del colpo pesante; tap =
+    leggero, pressione oltre `attackChargeMs` (**260ms**) = pesante. Danni,
+    costi e finestre dei due colpi restano quelli del legacy.
+
+6.4 **Scudo delle classi pesanti** (`shield`): parata in mantenimento che
+    assorbe il 70% del danno al costo di 8 di vigore per colpo. Novità del
+    rework, nessun equivalente legacy.
+
+6.5 **Fase 2 dei boss**: Equus (primo boss) NON ha più la fase 2 (il legacy
+    aveva l'enrage silenzioso a metà vita, vedi §2). Cornelia e Palladio sono
+    più duri del legacy: speedMult 0.72/0.68 → **0.66/0.62** e nuovo
+    `damageMult` **1.25/1.3**. L'ingresso in fase 2 è annunciato (anello
+    porpora + scossa).
+
+6.6 **Nuova mossa di Equus**: ONDA BASSA (`EQUUS.wave`), scavalcabile solo
+    col salto — parte della grammatica «telegrafi colorati» (azzurro = salta,
+    oro = schiva, porpora = incassa/para) introdotta dal rework.
+
+6.7 **Drop dei nemici ridotto**: ombra 0.25 → 0.10, larva 0.15 → 0.07; i
+    nuovi guerriero/arciere/segugio nascono già parchi (0.10/0.08/0.10).
