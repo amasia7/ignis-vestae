@@ -15,17 +15,23 @@ npm run dev          # gioco su http://localhost:5173
 npm run art:preview  # tutte le texture su griglia, isolate dal gioco
 ```
 
-Comandi in gioco: `◀ ▶` muoversi · `↑` salto · `A` colpo · `Q` pesante ·
-`S` schivata · `H` ampolla · `E` abilità · `I` borsa · `ESC` pausa (il
-recap è sempre visibile in alto a sinistra). Touch e gamepad supportati;
-tasti rimappabili dalle impostazioni (`O` dal titolo).
+Comandi in gioco: `◀ ▶` muoversi · `↑` salto · `A` colpo (tieni premuto:
+pesante) · `Q` scudo (classi pesanti) · `S` schivata · `H` ampolla · `E`
+abilità · `F` oggetto rapido · `C` cambia oggetto rapido · `B` borsa ·
+`ESC` pausa (il recap è sempre visibile in alto a sinistra). Col mouse:
+sinistro colpo (tieni: pesante), destro schivata o scudo secondo la
+classe, rotella oggetto rapido. Touch e gamepad supportati; tasti
+rimappabili dalle impostazioni (`O` dal titolo).
 
-La run: **tre mondi, cinque cammini a scorrimento ciascuno** (durata
-crescente, sfondo condiviso per mondo), poi il custode del mondo. Nei
+La run: **tre mondi, tre mini cammini con platforming ciascuno**
+(piattaforme sospese, trincee di braci, durata crescente, sfondo condiviso
+per mondo), popolati da un mix di **guerrieri e arcieri**, poi il custode
+del mondo — telegrafi colorati per tipo di schivata e **fase 2** dai boss
+successivi al primo. Nei
 cammini si nascondono **urne segrete** (un'arma e una benedizione per
 mondo: spezzale con un colpo) e ogni custode lascia un **bottino**
 (arma o benedizione permanente). Le **armi sono staccate dal
-personaggio**: slot dedicato nell'HUD, gestione dalla borsa (`I`).
+personaggio**: slot dedicato nell'HUD, gestione dalla borsa (`B`).
 Dal menu: **3 slot di salvataggio** e la rigiocata dei **cammini
 completati** (voce LIVELLI).
 
