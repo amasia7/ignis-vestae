@@ -3,8 +3,10 @@ import type { Action } from './actions';
 
 /**
  * Mappatura azione → nomi tasto (Phaser.Input.Keyboard.KeyCodes).
- * Nuovo schema richiesto dal committente: frecce per muoversi e saltare,
- * A leggero, Q pesante, S schivata, E abilità, H ampolla, I borsa.
+ * Schema attuale: frecce per muoversi e saltare, A attacco (tap = leggero,
+ * tieni premuto = pesante), Q scudo, S schivata, E abilità, H ampolla,
+ * F oggetto rapido, C scorri oggetti, B borsa. Il mouse è sempre attivo:
+ * sinistro attacco, destro schivata/scudo (per classe), rotella oggetto.
  * Rimappabili dalle impostazioni (override in settings.bindings, persistiti).
  */
 export type KeyBindings = Record<Action, readonly string[]>;
@@ -13,12 +15,14 @@ export const DEFAULT_BINDINGS: KeyBindings = {
   MOVE_LEFT: ['LEFT'],
   MOVE_RIGHT: ['RIGHT'],
   JUMP: ['UP'],
-  LIGHT: ['A'],
-  HEAVY: ['Q'],
+  ATTACK: ['A'],
+  SHIELD: ['Q'],
   ROLL: ['S'],
   HEAL: ['H'],
   ABILITY: ['E'],
-  INVENTORY: ['I'],
+  QUICK_ITEM: ['F'],
+  CYCLE_ITEM: ['C'],
+  INVENTORY: ['B', 'I'],
   CONFIRM: ['ENTER'],
   PAUSE: ['ESC'],
 };

@@ -9,13 +9,13 @@ const AXIS_THRESHOLD = 0.35;
 const BUTTON_ACTIONS: ReadonlyArray<readonly [number, Action]> = [
   [0, 'JUMP'], // A / Cross
   [0, 'CONFIRM'],
-  [2, 'LIGHT'], // X / Square
-  [3, 'HEAVY'], // Y / Triangle
+  [2, 'ATTACK'], // X / Square (tap = leggero, tieni = pesante)
+  [5, 'SHIELD'], // RB
   [1, 'ROLL'], // B / Circle
-  [5, 'ROLL'], // RB
   [4, 'HEAL'], // LB
   [7, 'ABILITY'], // RT
-  [6, 'ABILITY'], // LT
+  [3, 'QUICK_ITEM'], // Y / Triangle
+  [6, 'CYCLE_ITEM'], // LT
   [9, 'PAUSE'], // Start
   [8, 'INVENTORY'], // Select/Back
 ];

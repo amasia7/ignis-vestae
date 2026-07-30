@@ -72,14 +72,14 @@ describe('StateMachine', () => {
   });
 });
 
-describe('i-frame del roll (50-300ms)', () => {
-  it('inattivi prima di 50ms, attivi nella finestra, spenti dopo 300ms', () => {
+describe('i-frame del roll riscritto (40-370ms, +30% sul legacy)', () => {
+  it('inattivi prima di 40ms, attivi nella finestra, spenti dopo 370ms', () => {
     expect(rollIFrameActive(0)).toBe(false);
-    expect(rollIFrameActive(49)).toBe(false);
-    expect(rollIFrameActive(50)).toBe(true);
-    expect(rollIFrameActive(175)).toBe(true);
-    expect(rollIFrameActive(300)).toBe(true);
-    expect(rollIFrameActive(301)).toBe(false);
-    expect(rollIFrameActive(380)).toBe(false);
+    expect(rollIFrameActive(39)).toBe(false);
+    expect(rollIFrameActive(40)).toBe(true);
+    expect(rollIFrameActive(200)).toBe(true);
+    expect(rollIFrameActive(370)).toBe(true);
+    expect(rollIFrameActive(371)).toBe(false);
+    expect(rollIFrameActive(460)).toBe(false);
   });
 });

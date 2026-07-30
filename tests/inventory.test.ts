@@ -54,14 +54,36 @@ describe('armi staccate dal personaggio', () => {
 });
 
 describe('oggetti nella borsa', () => {
-  it('si accumulano e si consumano per indice', () => {
+  it('gli oggetti uguali si impilano in un solo slot con la quantità', () => {
     const run = new RunState();
     run.startRun(0);
     run.addItem('balsamo');
     run.addItem('balsamo');
-    expect(run.items).toHaveLength(2);
-    run.removeItem(0);
-    expect(run.items).toHaveLength(1);
+    run.addItem('incenso');
+    run.addItem('balsamo');
+    expect(run.itemCounts()).toEqual([
+      { id: 'balsamo', count: 3 },
+      { id: 'incenso', count: 1 },
+    ]);
+    expect(run.countOf('balsamo')).toBe(3);
+    expect(run.consumeItem('balsamo')).toBe(true);
+    expect(run.countOf('balsamo')).toBe(2);
+    expect(run.consumeItem('incenso')).toBe(true);
+    expect(run.consumeItem('incenso')).toBe(false); // finiti
+  });
+
+  it("l'oggetto rapido parte dalla cura e cicla tra i tipi presenti", () => {
+    const run = new RunState();
+    run.startRun(0);
+    expect(run.quickItem).toBe('balsamo');
+    run.cycleQuickItem(); // borsa vuota: resta dov'è
+    expect(run.quickItem).toBe('balsamo');
+    run.addItem('balsamo');
+    run.addItem('incenso');
+    run.cycleQuickItem();
+    expect(run.quickItem).toBe('incenso');
+    run.cycleQuickItem();
+    expect(run.quickItem).toBe('balsamo');
   });
 });
 

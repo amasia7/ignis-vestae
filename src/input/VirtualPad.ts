@@ -29,12 +29,14 @@ export class VirtualPad implements InputSource {
     const buttons: PadButton[] = [
       { x: 72, y: H - 54, action: 'MOVE_LEFT', label: vp.left, small: false, hold: true },
       { x: 156, y: H - 54, action: 'MOVE_RIGHT', label: vp.right, small: false, hold: true },
-      { x: W - 88, y: H - 54, action: 'LIGHT', label: vp.light, small: false, hold: false },
+      // attacco e scudo in mantenimento: tieni premuto = colpo pesante / parata
+      { x: W - 88, y: H - 54, action: 'ATTACK', label: vp.attack, small: false, hold: true },
       { x: W - 166, y: H - 54, action: 'ROLL', label: vp.roll, small: false, hold: false },
       { x: W - 244, y: H - 54, action: 'JUMP', label: vp.jump, small: false, hold: false },
-      { x: W - 88, y: H - 128, action: 'HEAVY', label: vp.heavy, small: true, hold: false },
+      { x: W - 88, y: H - 128, action: 'SHIELD', label: vp.shield, small: true, hold: true },
       { x: W - 158, y: H - 128, action: 'ABILITY', label: vp.ability, small: true, hold: false },
       { x: W - 228, y: H - 128, action: 'HEAL', label: vp.heal, small: true, hold: false },
+      { x: W - 298, y: H - 128, action: 'QUICK_ITEM', label: vp.quick, small: true, hold: false },
     ];
     for (const b of buttons) this.makeButton(scene, b);
   }
@@ -57,8 +59,8 @@ export class VirtualPad implements InputSource {
       .setAlpha(0.85);
     const press = (): void => {
       img.setAlpha(0.72);
+      this.just.add(b.action);
       if (b.hold) this.held.add(b.action);
-      else this.just.add(b.action);
     };
     const release = (): void => {
       img.setAlpha(0.38);

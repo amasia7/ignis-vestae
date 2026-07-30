@@ -29,6 +29,22 @@ export function balsamo(g: Phaser.GameObjects.Graphics): void {
   g.fillRect(8, 2, 4, 5); // tappo
 }
 
+/** incenso — 20x20: grani d'incenso in coppa di bronzo (ridona vigore). */
+export function incenso(g: Phaser.GameObjects.Graphics): void {
+  g.fillStyle(0x8a6a3a, 1);
+  g.fillEllipse(10, 14, 16, 8); // coppa
+  g.fillStyle(0xd8b86a, 1);
+  g.fillCircle(7, 11, 2.5);
+  g.fillCircle(12, 10, 2.5);
+  g.fillCircle(10, 13, 2.5); // grani
+  g.lineStyle(1.5, 0xbfd8e8, 0.7);
+  g.beginPath();
+  g.moveTo(10, 8);
+  g.lineTo(12, 4);
+  g.lineTo(10, 1);
+  g.strokePath(); // filo di fumo
+}
+
 /** wp4 — falx 44x14: falce da guerra tracia, lama ricurva. */
 export function falx(g: Phaser.GameObjects.Graphics): void {
   g.fillStyle(0x4a3a2a, 1);

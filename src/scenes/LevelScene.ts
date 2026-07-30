@@ -13,6 +13,8 @@ import { InputManager } from '../input/InputManager';
 import { KeyboardSource } from '../input/KeyboardSource';
 import { VirtualPad } from '../input/VirtualPad';
 import { GamepadSource } from '../input/GamepadSource';
+import { MouseSource } from '../input/MouseSource';
+import { useQuickItem } from '../core/quickItems';
 import { Player, type CombatHost } from '../entities/Player';
 import { Enemy, type EnemyHost } from '../entities/enemies/Enemy';
 import { Pickup } from '../entities/Pickup';
@@ -75,6 +77,7 @@ export class LevelScene extends Phaser.Scene implements CombatHost, EnemyHost {
     this.controls.addSource(this.keyboardSource);
     this.controls.addSource(new VirtualPad(this));
     this.controls.addSource(new GamepadSource(this));
+    this.controls.addSource(new MouseSource(this));
     const offSettings = gameEvents.on('settings:changed', () => this.keyboardSource.rebuild());
     this.events.once('shutdown', offSettings);
 
@@ -170,6 +173,18 @@ export class LevelScene extends Phaser.Scene implements CombatHost, EnemyHost {
     if (this.over && this.retryArmed && this.controls.justPressed('CONFIRM')) {
       this.scene.restart();
       return;
+    }
+    // oggetto rapido (rotella / F) e ciclo del tipo (C)
+    if (!this.over && this.controls.justPressed('CYCLE_ITEM')) {
+      RUN.cycleQuickItem();
+      beep(300, 0.05, 'sine', 0.03, 60);
+    }
+    if (!this.over && this.controls.justPressed('QUICK_ITEM')) {
+      if (useQuickItem(this.player)) {
+        beep(880, 0.25, 'sine', 0.05, 120);
+        puff(this, this.player.spr.x, this.player.spr.y - 40, 0x7fd8a8, 8, 40, 300);
+        SaveManager.save();
+      } else beep(120, 0.1, 'square', 0.03, -40);
     }
 
     if (Math.random() < 0.15)

@@ -14,6 +14,8 @@ export interface PlayerClassData {
   readonly flasks: number;
   readonly abilityCooldownMs: number;
   readonly ability: AbilityId;
+  /** Classe pesante con scudo: il destro del mouse para invece di schivare. */
+  readonly hasShield: boolean;
   readonly robeColor: number;
   readonly trimColor: number;
 }
@@ -28,6 +30,7 @@ export const CLASSES: readonly PlayerClassData[] = [
     flasks: 4,
     abilityCooldownMs: 8000,
     ability: 'cast', // FIAMMA VOTIVA
+    hasShield: false,
     robeColor: 0xe9e2d0,
     trimColor: 0x8e2f2f,
   },
@@ -40,6 +43,7 @@ export const CLASSES: readonly PlayerClassData[] = [
     flasks: 3,
     abilityCooldownMs: 12000,
     ability: 'smite', // IRA SACRILEGA
+    hasShield: true,
     robeColor: 0x5a5148,
     trimColor: 0xc9a227,
   },
@@ -52,6 +56,7 @@ export const CLASSES: readonly PlayerClassData[] = [
     flasks: 4,
     abilityCooldownMs: 14000,
     ability: 'haste', // PRESAGIO
+    hasShield: false,
     robeColor: 0xd8dde5,
     trimColor: 0x4a6fa0,
   },

@@ -13,17 +13,24 @@ describe('valori non negoziabili del game feel', () => {
     expect([W, H, GROUND, GRAVITY_Y]).toEqual([960, 540, 460, 1500]);
   });
 
-  it('salto: forza, taglio, coyote time, jump buffer', () => {
-    expect(PLAYER.jumpVelocity).toBe(-560);
-    expect(PLAYER.jumpCutVelocity).toBe(-220);
-    expect(PLAYER.coyoteMs).toBe(90);
-    expect(PLAYER.jumpBufferMs).toBe(130);
+  // NOTA: salto e roll DIVERGONO dal legacy per volontà del committente
+  // (verticalità e roll +30% — vedi BALANCE-NOTES §6). Blindati sui nuovi.
+  it('salto potenziato per la verticalità: forza, taglio, coyote, buffer', () => {
+    expect(PLAYER.jumpVelocity).toBe(-680);
+    expect(PLAYER.jumpCutVelocity).toBe(-260);
+    expect(PLAYER.coyoteMs).toBe(120);
+    expect(PLAYER.jumpBufferMs).toBe(160);
   });
 
-  it('roll: i-frame 50-300 nella finestra di rotolamento da 380ms', () => {
-    expect(PLAYER.roll.iframeStartMs).toBe(50);
-    expect(PLAYER.roll.iframeEndMs).toBe(300);
-    expect(PLAYER.roll.durationMs).toBe(380);
+  it('roll riscritto (+30%): i-frame 40-370 nella capriola da 460ms', () => {
+    expect(PLAYER.roll.iframeStartMs).toBe(40);
+    expect(PLAYER.roll.iframeEndMs).toBe(370);
+    expect(PLAYER.roll.durationMs).toBe(460);
+    expect(PLAYER.roll.velocity).toBe(754);
+  });
+
+  it('attacco a tasto unico: soglia di carica del colpo pesante', () => {
+    expect(PLAYER.attackChargeMs).toBe(260);
   });
 
   it('stamina: costi 25/14/28 e rigenerazione 55/s', () => {

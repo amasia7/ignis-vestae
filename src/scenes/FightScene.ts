@@ -11,6 +11,8 @@ import { InputManager } from '../input/InputManager';
 import { KeyboardSource } from '../input/KeyboardSource';
 import { VirtualPad } from '../input/VirtualPad';
 import { GamepadSource } from '../input/GamepadSource';
+import { MouseSource } from '../input/MouseSource';
+import { useQuickItem } from '../core/quickItems';
 import { Player, type CombatHost } from '../entities/Player';
 import { BossBase, type BossHost } from '../entities/bosses/BossBase';
 import { BOSS_MAKERS } from '../entities/bosses';
@@ -69,6 +71,7 @@ export class FightScene extends Phaser.Scene implements CombatHost, BossHost {
     this.controls.addSource(this.keyboardSource);
     this.controls.addSource(new VirtualPad(this));
     this.controls.addSource(new GamepadSource(this));
+    this.controls.addSource(new MouseSource(this));
 
     // rimappature fatte dalle impostazioni in pausa: ricostruisci i tasti
     const offSettings = gameEvents.on('settings:changed', () => this.keyboardSource.rebuild());
@@ -185,6 +188,22 @@ export class FightScene extends Phaser.Scene implements CombatHost, BossHost {
     }
   }
 
+  /** Oggetto rapido (rotella / F) e ciclo del tipo (C). */
+  private handleQuickItem(): void {
+    if (this.over) return;
+    if (this.controls.justPressed('CYCLE_ITEM')) {
+      RUN.cycleQuickItem();
+      beep(300, 0.05, 'sine', 0.03, 60);
+    }
+    if (this.controls.justPressed('QUICK_ITEM')) {
+      if (useQuickItem(this.player)) {
+        beep(880, 0.25, 'sine', 0.05, 120);
+        puff(this, this.player.spr.x, this.player.spr.y - 40, 0x7fd8a8, 8, 40, 300);
+        SaveManager.save();
+      } else beep(120, 0.1, 'square', 0.03, -40);
+    }
+  }
+
   onPlayerDeath(): void {
     this.over = true;
     this.retryArmed = false;
@@ -219,6 +238,7 @@ export class FightScene extends Phaser.Scene implements CombatHost, BossHost {
       this.scene.restart();
       return;
     }
+    this.handleQuickItem();
 
     // braci ambientali (r. 858-861)
     if (Math.random() < 0.2) puff(this, Math.random() * W, H - 10, 0xffaa5a, 1, 10, 1200);

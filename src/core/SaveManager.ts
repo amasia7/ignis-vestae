@@ -24,6 +24,7 @@ interface SlotData {
   weapons: WeaponId[];
   equippedWeapon: WeaponId;
   items: ItemId[];
+  quickItem?: ItemId;
   buffs: BuffId[];
   foundSecrets: string[];
   completedLevels: boolean[][];
@@ -108,6 +109,7 @@ export const SaveManager = {
       RUN.equippedWeapon = data.equippedWeapon ?? data.weapons[0]!;
     }
     if (Array.isArray(data.items)) RUN.items = [...data.items];
+    if (data.quickItem) RUN.quickItem = data.quickItem;
     if (Array.isArray(data.buffs)) RUN.buffs = [...data.buffs];
     if (Array.isArray(data.foundSecrets)) RUN.foundSecrets = [...data.foundSecrets];
     if (Array.isArray(data.completedLevels))
@@ -132,6 +134,7 @@ export const SaveManager = {
         weapons: [...RUN.weapons],
         equippedWeapon: RUN.equippedWeapon,
         items: [...RUN.items],
+        quickItem: RUN.quickItem,
         buffs: [...RUN.buffs],
         foundSecrets: [...RUN.foundSecrets],
         completedLevels: RUN.completedLevels.map((r) => [...r]),

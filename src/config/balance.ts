@@ -15,22 +15,25 @@ export const PLAYER = {
   accelX: 2800, // r. 329
   maxVelY: 1000, // r. 272
 
-  jumpVelocity: -560, // r. 332
-  jumpCutVelocity: -220, // r. 334: al rilascio il salto viene tagliato a -220
-  coyoteMs: 90, // r. 321
-  jumpBufferMs: 130, // r. 322
+  // NOTA: dal rework voluto dal committente questi valori DIVERGONO dal
+  // legacy (salto più lungo per la verticalità, vedi BALANCE-NOTES §6)
+  jumpVelocity: -680,
+  jumpCutVelocity: -260,
+  coyoteMs: 120,
+  jumpBufferMs: 160,
 
   staminaRegenPerSec: 55, // r. 371: rigenera solo nello stato `free`
 
   roll: {
-    staminaCost: 25, // r. 335
-    velocity: 580, // r. 338
-    maxVelocity: 620, // r. 324/337
-    durationMs: 380, // r. 347
-    iframeStartMs: 50, // r. 280: invulnerabile per 50 <= sT <= 300
-    iframeEndMs: 300,
-    squashScaleY: 0.62, // r. 338
-    groundedOnly: true, // r. 335
+    // riscritto su richiesta: +30% di efficacia (distanza e finestra i-frame)
+    staminaCost: 25,
+    velocity: 754, // era 580
+    maxVelocity: 806, // era 620
+    durationMs: 460, // era 380
+    iframeStartMs: 40, // era 50-300: finestra +30%
+    iframeEndMs: 370,
+    squashScaleY: 0.85, // l'animazione ora è una capriola (rotazione completa)
+    groundedOnly: true,
   },
 
   lightAttack: {
@@ -49,6 +52,16 @@ export const PLAYER = {
     hitEndMs: 450,
     durationMs: 620, // r. 353
     box: { w: 96, h: 82 }, // r. 305
+  },
+
+  /** Attacco a tasto unico: tap = leggero, oltre questa soglia = pesante. */
+  attackChargeMs: 260,
+
+  /** Scudo (classi pesanti): parata in mantenimento. */
+  shield: {
+    damageFactor: 0.3, // si subisce il 30% del danno
+    staminaCostPerBlock: 8,
+    blockInvulnMs: 300,
   },
 
   heal: {

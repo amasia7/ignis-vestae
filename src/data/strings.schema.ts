@@ -119,12 +119,15 @@ export interface Strings {
   readonly hud: {
     readonly move: string;
     readonly jump: string;
-    readonly light: string;
-    readonly heavy: string;
+    readonly attack: string;
+    readonly shield: string;
     readonly roll: string;
     readonly heal: string;
     readonly ability: string;
     readonly bag: string;
+    readonly quickItem: string;
+    readonly cycleItem: string;
+    readonly mouse: string;
   };
   /** Armi e oggetti (slot arma + borsa): desc = lore, fx = cosa fa. */
   readonly weapons: Readonly<
@@ -144,6 +147,7 @@ export interface Strings {
     readonly buffsHeader: string;
     readonly hint: string;
     readonly equipped: string;
+    readonly quickMark: string;
     readonly empty: string;
     readonly picked: string;
   };
@@ -180,11 +184,12 @@ export interface Strings {
   readonly vpad: {
     readonly left: string;
     readonly right: string;
-    readonly light: string;
+    readonly attack: string;
     readonly roll: string;
     readonly jump: string;
-    readonly heavy: string;
+    readonly shield: string;
     readonly ability: string;
     readonly heal: string;
+    readonly quick: string;
   };
 }

@@ -10,6 +10,7 @@ import type { Player } from './Player';
  */
 export class PlayerWeapon {
   private img: Phaser.GameObjects.Image;
+  private shieldImg: Phaser.GameObjects.Image;
   private scene: Phaser.Scene;
 
   constructor(scene: Phaser.Scene, _classIdx: number, x: number, y: number) {
@@ -18,6 +19,10 @@ export class PlayerWeapon {
       .image(x, y - 34, WEAPONS[RUN.equippedWeapon].textureKey)
       .setOrigin(0.12, 0.5)
       .setDepth(5);
+    this.shieldImg = scene.add
+      .image(x, y - 36, 'scutum')
+      .setDepth(5)
+      .setVisible(false);
   }
 
   /** L'arma può cambiare dalla borsa anche a metà scena. */
@@ -50,12 +55,24 @@ export class PlayerWeapon {
     const w = this.img;
     const state = player.state;
     const sT = player.timeInState;
+    // in guardia: scudo alzato davanti, arma nascosta
+    if (state === 'guard') {
+      w.setVisible(false);
+      this.shieldImg
+        .setVisible(true)
+        .setPosition(s.x + f * 17, s.y - 36)
+        .setFlipX(f < 0);
+      return;
+    }
+    this.shieldImg.setVisible(false);
     if (state === 'roll' || state === 'heal') {
       w.setVisible(false);
       return;
     }
     w.setVisible(true);
     let ang = -0.12;
+    // carica del colpo: l'arma si solleva progressivamente
+    if (player.chargeProgress > 0) ang = -0.2 - player.chargeProgress * 1.1;
     if (state === 'attL')
       ang = sT < 110 ? -0.65 : Phaser.Math.Linear(-0.9, 0.75, Math.min(1, (sT - 110) / 110));
     if (state === 'attH')

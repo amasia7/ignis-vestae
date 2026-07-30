@@ -24,6 +24,8 @@ export class RunState {
   weapons: WeaponId[] = [CLASS_WEAPONS[0] ?? 'secespita'];
   equippedWeapon: WeaponId = CLASS_WEAPONS[0] ?? 'secespita';
   items: ItemId[] = [];
+  /** Oggetto rapido (rotella / tasto dedicato); default: la cura. */
+  quickItem: ItemId = 'balsamo';
   /** Progressione nei mondi: cammino corrente (0..4; il boss viene dopo il 5°). */
   levelIdx = 0;
   /** Cammini completati, per la selezione dei livelli rigiocabili. */
@@ -100,6 +102,7 @@ export class RunState {
     this.weapons = [base];
     this.equippedWeapon = base;
     this.items = [];
+    this.quickItem = 'balsamo';
   }
 
   addWeapon(id: WeaponId): boolean {
@@ -116,8 +119,38 @@ export class RunState {
     this.items.push(id);
   }
 
-  removeItem(index: number): void {
-    this.items.splice(index, 1);
+  /**
+   * Borsa raggruppata: un elenco per tipo con la quantità (×2, ×3…),
+   * nell'ordine di prima raccolta. È la vista usata da HUD e inventario.
+   */
+  itemCounts(): { id: ItemId; count: number }[] {
+    const order: ItemId[] = [];
+    const counts = new Map<ItemId, number>();
+    for (const id of this.items) {
+      if (!counts.has(id)) order.push(id);
+      counts.set(id, (counts.get(id) ?? 0) + 1);
+    }
+    return order.map((id) => ({ id, count: counts.get(id) ?? 0 }));
+  }
+
+  countOf(id: ItemId): number {
+    return this.items.reduce((n, i) => (i === id ? n + 1 : n), 0);
+  }
+
+  /** Consuma UNA copia dell'oggetto. @returns false se non ce n'erano. */
+  consumeItem(id: ItemId): boolean {
+    const idx = this.items.indexOf(id);
+    if (idx < 0) return false;
+    this.items.splice(idx, 1);
+    return true;
+  }
+
+  /** Cicla l'oggetto rapido tra i tipi presenti in borsa (tasto C). */
+  cycleQuickItem(): void {
+    const kinds = this.itemCounts().map((e) => e.id);
+    if (kinds.length === 0) return;
+    const next = kinds[(kinds.indexOf(this.quickItem) + 1) % kinds.length];
+    if (next) this.quickItem = next;
   }
 
   /** Moltiplicatore dell'arma in pugno (1 per le armi di classe legacy). */

@@ -15,7 +15,8 @@ import { shake } from '../fx/screenShake';
 import type { TextureKey } from '../art/registry';
 import { PlayerWeapon } from './PlayerWeapon';
 
-export type PlayerStateId = 'free' | 'roll' | 'attL' | 'attH' | 'heal' | 'cast' | 'smite' | 'hurt';
+export type PlayerStateId =
+  'free' | 'roll' | 'attL' | 'attH' | 'guard' | 'heal' | 'cast' | 'smite' | 'hurt';
 
 /** Ciò che il Player chiede alla scena di combattimento. */
 export interface CombatHost {
@@ -51,6 +52,8 @@ export class Player {
   fireCd = 0;
   face = 1;
   dead = false;
+  /** ms di pressione del tasto d'attacco; -1 = nessuna carica in corso. */
+  private chargeMs = -1;
   /** true = il colpo corrente ha già registrato l'impatto (hitReg legacy). */
   hitConnected = true;
 
@@ -157,6 +160,7 @@ export class Player {
   private endState(): void {
     this.sm.set('free');
     this.spr.setScale(1, 1);
+    this.spr.setRotation(0);
   }
 
   get state(): PlayerStateId {
@@ -165,6 +169,15 @@ export class Player {
 
   get timeInState(): number {
     return this.sm.time;
+  }
+
+  /** 0..1 durante la carica dell'attacco (per la posa dell'arma). */
+  get chargeProgress(): number {
+    return this.chargeMs < 0 ? 0 : Math.min(1, this.chargeMs / PLAYER.attackChargeMs);
+  }
+
+  get guarding(): boolean {
+    return this.sm.is('guard');
   }
 
   /** mult effettivo: classe × MOLA SALSA × arma in pugno (cambia al volo). */
@@ -212,6 +225,24 @@ export class Player {
 
   hurt(damage: number, knockbackX: number): void {
     if (this.invuln() || this.dead || this.host.over) return;
+    this.chargeMs = -1;
+    this.spr.setRotation(0);
+    // parata: il colpo è assorbito dallo scudo finché regge la resistenza
+    if (this.sm.is('guard') && this.stamina.trySpend(PLAYER.shield.staminaCostPerBlock)) {
+      this.hp -= damage * PLAYER.shield.damageFactor;
+      this.inv = PLAYER.shield.blockInvulnMs;
+      this.spr.setVelocityX((knockbackX || 0) * 0.4);
+      puff(this.scene, this.spr.x + this.face * 16, this.spr.y - 36, 0x9fd0ea, 8, 30, 260);
+      beep(520, 0.08, 'square', 0.05, -120);
+      gameEvents.emit('player:hurt', { hp: this.hp, maxHp: this.mhp, damage });
+      if (this.hp <= 0) {
+        this.hp = 0;
+        this.dead = true;
+        gameEvents.emit('player:death', { classIdx: this.classIdx });
+        this.host.onPlayerDeath();
+      }
+      return;
+    }
     this.hp -= damage;
     this.inv = PLAYER.hurt.invulnMs;
     this.sm.set('hurt');
@@ -312,23 +343,43 @@ export class Player {
       if (!input.jumpHeldForCut() && body.velocity.y < PLAYER.jumpCutVelocity)
         s.setVelocityY(PLAYER.jumpCutVelocity);
 
-      if (input.justPressed('ROLL') && this.stamina.canAfford(PLAYER.roll.staminaCost) && g) {
+      // attacco a tasto unico: tap = leggero, tieni premuto = pesante
+      if (this.chargeMs >= 0) {
+        this.chargeMs += dt;
+        if (input.justPressed('ROLL') && this.stamina.canAfford(PLAYER.roll.staminaCost) && g) {
+          this.chargeMs = -1; // la schivata annulla la carica
+          this.stamina.trySpend(PLAYER.roll.staminaCost);
+          this.startRoll();
+        } else if (this.chargeMs >= PLAYER.attackChargeMs) {
+          this.chargeMs = -1;
+          if (this.stamina.trySpend(PLAYER.heavyAttack.staminaCost)) {
+            this.hitConnected = false;
+            s.setAccelerationX(0);
+            this.sm.set('attH');
+          }
+        } else if (!input.isHeld('ATTACK')) {
+          this.chargeMs = -1;
+          if (this.stamina.trySpend(PLAYER.lightAttack.staminaCost)) {
+            this.hitConnected = false;
+            s.setAccelerationX(0);
+            this.sm.set('attL');
+          }
+        }
+      } else if (
+        input.justPressed('ATTACK') &&
+        this.stamina.canAfford(PLAYER.lightAttack.staminaCost)
+      ) {
+        this.chargeMs = 0;
+      } else if (
+        input.justPressed('ROLL') &&
+        this.stamina.canAfford(PLAYER.roll.staminaCost) &&
+        g
+      ) {
         this.stamina.trySpend(PLAYER.roll.staminaCost);
         this.startRoll();
-      } else if (
-        input.justPressed('LIGHT') &&
-        this.stamina.trySpend(PLAYER.lightAttack.staminaCost)
-      ) {
-        this.hitConnected = false;
+      } else if (input.isHeld('SHIELD') && this.c.hasShield && g) {
         s.setAccelerationX(0);
-        this.sm.set('attL');
-      } else if (
-        input.justPressed('HEAVY') &&
-        this.stamina.trySpend(PLAYER.heavyAttack.staminaCost)
-      ) {
-        this.hitConnected = false;
-        s.setAccelerationX(0);
-        this.sm.set('attH');
+        this.sm.set('guard');
       } else if (input.justPressed('HEAL') && this.fl > 0 && this.hp < this.mhp && g) {
         this.fl--;
         s.setAccelerationX(0);
@@ -338,10 +389,16 @@ export class Player {
       }
     } else {
       s.setAccelerationX(0);
+      // la guardia dura finché il tasto resta premuto
+      if (this.sm.is('guard') && !input.isHeld('SHIELD')) this.endState();
     }
 
+    // nuova animazione della schivata: capriola completa
+    if (this.sm.is('roll'))
+      s.setRotation(this.face * (this.sm.time / PLAYER.roll.durationMs) * Math.PI * 2);
+
     this.sm.update(dt);
-    if (this.sm.is('free')) this.stamina.regen(dt);
+    if (this.sm.is('free') || this.sm.is('guard')) this.stamina.regen(dt);
     s.setAlpha(this.inv > 0 && Math.floor(this.scene.time.now / 60) % 2 ? 0.45 : 1);
     this.weapon.pose(this);
   }

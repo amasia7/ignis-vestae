@@ -3,7 +3,7 @@ import { H, W } from '../config/game.config';
 import { strings } from '../data/i18n';
 import { WEAPONS, type WeaponId } from '../data/weapons';
 import { ITEMS, type ItemId } from '../data/items';
-import { BUFFS } from '../data/buffs';
+import { BUFFS, type BuffId } from '../data/buffs';
 import { RUN } from '../core/RunState';
 import { SaveManager } from '../core/SaveManager';
 import { GamepadMenu } from '../input/GamepadMenu';
@@ -12,16 +12,28 @@ import { T, textStyle } from '../ui/text';
 import type { Player } from '../entities/Player';
 import type { TextureKey } from '../art/registry';
 
-type Row = { kind: 'weapon'; id: WeaponId } | { kind: 'item'; id: ItemId; index: number };
+type Row = { kind: 'weapon'; id: WeaponId } | { kind: 'item'; id: ItemId; count: number };
+
+type Entry =
+  | { kind: 'header'; label: string }
+  | { kind: 'row'; row: Row; idx: number }
+  | { kind: 'buff'; id: BuffId }
+  | { kind: 'empty' };
+
+/** Righe visibili nel pannello: oltre, la lista scorre col cursore. */
+const MAX_VISIBLE = 10;
+const LINE_H = 32;
 
 /**
- * La borsa (tasto I): slot arma + oggetti trovati nella run.
- * Overlay sopra fight o livello, che resta in pausa sotto.
+ * La borsa (tasto B): slot arma + oggetti raggruppati per tipo con la
+ * quantità (×2, ×3…) — un tipo, uno slot. La lista scorre se non entra,
+ * così non si sovrappone mai al pannello. C imposta l'oggetto rapido.
  */
 export class InventoryScene extends Phaser.Scene {
   private from = 'fight';
   private rows: Row[] = [];
   private cursor = 0;
+  private scroll = 0;
   private rowObjs: Phaser.GameObjects.GameObject[] = [];
   private descText!: Phaser.GameObjects.Text;
   private fxText!: Phaser.GameObjects.Text;
@@ -37,15 +49,16 @@ export class InventoryScene extends Phaser.Scene {
   create(): void {
     const s = strings().inventory;
     this.cursor = 0;
+    this.scroll = 0;
     this.add.rectangle(W / 2, H / 2, W, H, 0x060409, 0.85);
-    this.add.rectangle(W / 2, H / 2, 560, 420, 0x14101f, 0.95).setStrokeStyle(1.5, 0x4a3c26);
-    T(this, W / 2, H / 2 - 186, s.title, 26, '#c9a227');
-    T(this, W / 2, H / 2 - 158, s.hint, 12, '#a3927a');
-    this.descText = T(this, W / 2, H / 2 + 160, '', 13, '#c9b98f', {
-      wordWrap: { width: 500 },
+    this.add.rectangle(W / 2, H / 2, 600, 460, 0x14101f, 0.95).setStrokeStyle(1.5, 0x4a3c26);
+    T(this, W / 2, H / 2 - 206, s.title, 26, '#c9a227');
+    T(this, W / 2, H / 2 - 178, s.hint, 12, '#a3927a');
+    this.descText = T(this, W / 2, H / 2 + 176, '', 13, '#c9b98f', {
+      wordWrap: { width: 540 },
       fontStyle: 'italic',
     });
-    this.fxText = T(this, W / 2, H / 2 + 192, '', 13, '#9fd0ea', { wordWrap: { width: 500 } });
+    this.fxText = T(this, W / 2, H / 2 + 204, '', 13, '#9fd0ea', { wordWrap: { width: 540 } });
 
     this.rebuild();
 
@@ -53,6 +66,8 @@ export class InventoryScene extends Phaser.Scene {
     k?.on('keydown-UP', () => this.move(-1));
     k?.on('keydown-DOWN', () => this.move(1));
     k?.on('keydown-ENTER', () => this.activate());
+    k?.on('keydown-C', () => this.setQuick());
+    k?.on('keydown-B', () => this.close());
     k?.on('keydown-I', () => this.close());
     k?.on('keydown-ESC', () => this.close());
     new GamepadMenu(this, {
@@ -64,8 +79,28 @@ export class InventoryScene extends Phaser.Scene {
 
   private buildRows(): Row[] {
     const weapons: Row[] = RUN.weapons.map((id) => ({ kind: 'weapon', id }));
-    const items: Row[] = RUN.items.map((id, index) => ({ kind: 'item', id, index }));
+    const items: Row[] = RUN.itemCounts().map(({ id, count }) => ({ kind: 'item', id, count }));
     return [...weapons, ...items];
+  }
+
+  private buildEntries(): Entry[] {
+    const s = strings();
+    const entries: Entry[] = [];
+    entries.push({ kind: 'header', label: s.inventory.weaponsHeader });
+    this.rows.forEach((row, idx) => {
+      if (row.kind === 'weapon') entries.push({ kind: 'row', row, idx });
+    });
+    entries.push({ kind: 'header', label: s.inventory.itemsHeader });
+    const hasItems = this.rows.some((r) => r.kind === 'item');
+    if (!hasItems) entries.push({ kind: 'empty' });
+    this.rows.forEach((row, idx) => {
+      if (row.kind === 'item') entries.push({ kind: 'row', row, idx });
+    });
+    if (RUN.buffs.length > 0) {
+      entries.push({ kind: 'header', label: s.inventory.buffsHeader });
+      for (const id of RUN.buffs) entries.push({ kind: 'buff', id });
+    }
+    return entries;
   }
 
   private rebuild(): void {
@@ -75,38 +110,30 @@ export class InventoryScene extends Phaser.Scene {
     this.rows = this.buildRows();
     if (this.cursor >= this.rows.length) this.cursor = Math.max(0, this.rows.length - 1);
 
-    const x0 = W / 2 - 250;
-    let y = H / 2 - 118;
-    const header = (label: string): void => {
-      this.rowObjs.push(this.add.text(x0, y, label, textStyle(13, '#8d7c5c')).setOrigin(0, 0.5));
-      y += 28;
-    };
-    let rowIdx = 0;
+    const entries = this.buildEntries();
+    // la finestra visibile insegue il cursore
+    const cursorAt = entries.findIndex((e) => e.kind === 'row' && e.idx === this.cursor);
+    if (cursorAt >= 0) {
+      if (cursorAt < this.scroll) this.scroll = cursorAt;
+      if (cursorAt >= this.scroll + MAX_VISIBLE) this.scroll = cursorAt - MAX_VISIBLE + 1;
+    }
+    this.scroll = Math.max(0, Math.min(this.scroll, Math.max(0, entries.length - MAX_VISIBLE)));
 
-    header(s.inventory.weaponsHeader);
-    for (const row of this.rows.filter((r) => r.kind === 'weapon')) {
-      this.drawRow(row, rowIdx, x0, y);
-      y += 34;
-      rowIdx++;
-    }
-    y += 10;
-    header(s.inventory.itemsHeader);
-    const items = this.rows.filter((r) => r.kind === 'item');
-    if (items.length === 0)
-      this.rowObjs.push(
-        this.add.text(x0 + 36, y, s.inventory.empty, textStyle(13, '#6d6048')).setOrigin(0, 0.5),
-      );
-    for (const row of items) {
-      this.drawRow(row, rowIdx, x0, y);
-      y += 34;
-      rowIdx++;
-    }
-    // benedizioni permanenti: elenco passivo, non selezionabile
-    if (RUN.buffs.length > 0) {
-      y += 10;
-      header(s.inventory.buffsHeader);
-      for (const id of RUN.buffs) {
-        const b = BUFFS[id];
+    const x0 = W / 2 - 270;
+    const y0 = H / 2 - 148;
+    const visible = entries.slice(this.scroll, this.scroll + MAX_VISIBLE);
+    visible.forEach((entry, i) => {
+      const y = y0 + i * LINE_H;
+      if (entry.kind === 'header') {
+        this.rowObjs.push(
+          this.add.text(x0, y, entry.label, textStyle(13, '#8d7c5c')).setOrigin(0, 0.5),
+        );
+      } else if (entry.kind === 'empty') {
+        this.rowObjs.push(
+          this.add.text(x0 + 36, y, s.inventory.empty, textStyle(13, '#6d6048')).setOrigin(0, 0.5),
+        );
+      } else if (entry.kind === 'buff') {
+        const b = BUFFS[entry.id];
         this.rowObjs.push(
           this.add
             .image(x0 + 16, y, 'sigil')
@@ -115,12 +142,29 @@ export class InventoryScene extends Phaser.Scene {
         );
         this.rowObjs.push(
           this.add
-            .text(x0 + 44, y, `${s.buffs[id].name} — ${s.buffs[id].fx}`, textStyle(12, '#b9d8c8'))
+            .text(
+              x0 + 44,
+              y,
+              `${s.buffs[entry.id].name} — ${s.buffs[entry.id].fx}`,
+              textStyle(12, '#b9d8c8'),
+            )
             .setOrigin(0, 0.5),
         );
-        y += 26;
+      } else {
+        this.drawRow(entry.row, entry.idx, x0, y);
       }
-    }
+    });
+    // frecce di scorrimento quando la lista continua fuori dal pannello
+    if (this.scroll > 0)
+      this.rowObjs.push(
+        this.add.text(W / 2 + 262, y0, '▲', textStyle(13, '#8d7c5c')).setOrigin(0.5),
+      );
+    if (this.scroll + MAX_VISIBLE < entries.length)
+      this.rowObjs.push(
+        this.add
+          .text(W / 2 + 262, y0 + (MAX_VISIBLE - 1) * LINE_H, '▼', textStyle(13, '#8d7c5c'))
+          .setOrigin(0.5),
+      );
     this.refreshDesc();
   }
 
@@ -131,11 +175,14 @@ export class InventoryScene extends Phaser.Scene {
     const texKey = (
       row.kind === 'weapon' ? WEAPONS[row.id].textureKey : ITEMS[row.id].textureKey
     ) as TextureKey;
-    const name = row.kind === 'weapon' ? s.weapons[row.id].name : s.items[row.id].name;
-    const suffix =
-      row.kind === 'weapon' && RUN.equippedWeapon === row.id ? `   ✦ ${s.inventory.equipped}` : '';
+    let name = row.kind === 'weapon' ? s.weapons[row.id].name : s.items[row.id].name;
+    if (row.kind === 'item' && row.count > 1) name += `  ×${row.count}`;
+    let suffix = '';
+    if (row.kind === 'weapon' && RUN.equippedWeapon === row.id)
+      suffix = `   ✦ ${s.inventory.equipped}`;
+    if (row.kind === 'item' && RUN.quickItem === row.id) suffix = `   ◈ ${s.inventory.quickMark}`;
     if (selected)
-      this.rowObjs.push(this.add.rectangle(W / 2, y, 540, 30, 0x3a2c14, 0.5).setOrigin(0.5, 0.5));
+      this.rowObjs.push(this.add.rectangle(W / 2, y, 580, 30, 0x3a2c14, 0.5).setOrigin(0.5, 0.5));
     this.rowObjs.push(this.add.image(x0 + 16, y, texKey).setScale(0.9));
     this.rowObjs.push(
       this.add.text(x0 + 44, y, name + suffix, textStyle(14, color)).setOrigin(0, 0.5),
@@ -162,6 +209,16 @@ export class InventoryScene extends Phaser.Scene {
     this.rebuild();
   }
 
+  /** C: l'oggetto selezionato diventa l'oggetto rapido. */
+  private setQuick(): void {
+    const row = this.rows[this.cursor];
+    if (!row || row.kind !== 'item') return;
+    RUN.quickItem = row.id;
+    beep(340, 0.08, 'sine', 0.03, 80);
+    SaveManager.save();
+    this.rebuild();
+  }
+
   private activate(): void {
     const row = this.rows[this.cursor];
     if (!row) return;
@@ -173,12 +230,17 @@ export class InventoryScene extends Phaser.Scene {
       const gameplay = this.scene.get(this.from) as Phaser.Scene & { player?: Player };
       const item = ITEMS[row.id];
       const p = gameplay.player;
-      if (p && item.effect === 'heal' && p.hp < p.mhp) {
-        p.hp = Math.min(p.mhp, p.hp + item.amount);
-        RUN.removeItem(row.index);
+      const useful =
+        p &&
+        ((item.effect === 'heal' && p.hp < p.mhp) ||
+          (item.effect === 'stamina' && p.stamina.value < p.stamina.max));
+      if (p && useful) {
+        if (item.effect === 'heal') p.hp = Math.min(p.mhp, p.hp + item.amount);
+        else p.stamina.value = Math.min(p.stamina.max, p.stamina.value + item.amount);
+        RUN.consumeItem(row.id);
         beep(880, 0.25, 'sine', 0.05, 120);
       } else {
-        beep(120, 0.1, 'square', 0.03, -40); // niente da curare
+        beep(120, 0.1, 'square', 0.03, -40); // niente da ristorare
         return;
       }
     }

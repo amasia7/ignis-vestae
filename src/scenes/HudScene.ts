@@ -4,6 +4,7 @@ import { strings } from '../data/i18n';
 import { RUN } from '../core/RunState';
 import { gameEvents } from '../core/EventBus';
 import { WEAPONS } from '../data/weapons';
+import { ITEMS } from '../data/items';
 import { actionKeyLabel } from '../input/bindings';
 import { T, textStyle } from '../ui/text';
 import type { Player } from '../entities/Player';
@@ -28,7 +29,8 @@ export class HudScene extends Phaser.Scene {
   private bossName!: Phaser.GameObjects.Text;
   private recap!: Phaser.GameObjects.Text;
   private weaponIcon!: Phaser.GameObjects.Image;
-  private bagLabel!: Phaser.GameObjects.Text;
+  private quickIcon!: Phaser.GameObjects.Image;
+  private quickLabel!: Phaser.GameObjects.Text;
   private root!: Phaser.GameObjects.Container;
 
   constructor() {
@@ -61,9 +63,10 @@ export class HudScene extends Phaser.Scene {
     );
     this.events.once('shutdown', offSettings);
 
-    // slot arma + borsa (a destra della barra della vita)
+    // slot arma + oggetto rapido (a destra della barra della vita)
     this.weaponIcon = this.add.image(282, 35, WEAPONS[RUN.equippedWeapon].textureKey as TextureKey);
-    this.bagLabel = this.add.text(262, 50, '', textStyle(10, 'rgba(200,182,140,0.9)'));
+    this.quickIcon = this.add.image(332, 33, ITEMS[RUN.quickItem].textureKey as TextureKey);
+    this.quickLabel = this.add.text(343, 39, '', textStyle(10, 'rgba(200,182,140,0.9)'));
 
     const fight = this.scene.get(this.target) as GameplayScene;
     this.bossName = T(
@@ -81,7 +84,8 @@ export class HudScene extends Phaser.Scene {
       this.abLabel,
       this.recap,
       this.weaponIcon,
-      this.bagLabel,
+      this.quickIcon,
+      this.quickLabel,
       this.bossName,
       arena,
     ]);
@@ -93,9 +97,10 @@ export class HudScene extends Phaser.Scene {
     const k = actionKeyLabel;
     return [
       `${k('MOVE_LEFT')} ${k('MOVE_RIGHT')} ${s.move} · ${k('JUMP')} ${s.jump}`,
-      `${k('LIGHT')} ${s.light} · ${k('HEAVY')} ${s.heavy}`,
-      `${k('ROLL')} ${s.roll} · ${k('HEAL')} ${s.heal}`,
-      `${k('ABILITY')} ${s.ability} · ${k('INVENTORY')} ${s.bag}`,
+      `${k('ATTACK')} ${s.attack} · ${k('SHIELD')} ${s.shield}`,
+      `${k('ROLL')} ${s.roll} · ${k('HEAL')} ${s.heal} · ${k('ABILITY')} ${s.ability}`,
+      `${k('QUICK_ITEM')} ${s.quickItem} · ${k('CYCLE_ITEM')} ${s.cycleItem} · ${k('INVENTORY')} ${s.bag}`,
+      s.mouse,
     ].join('\n');
   }
 
@@ -127,7 +132,16 @@ export class HudScene extends Phaser.Scene {
     g.strokeRoundedRect(258, 20, 48, 30, 4);
     const weaponKey = WEAPONS[RUN.equippedWeapon].textureKey as TextureKey;
     if (this.weaponIcon.texture.key !== weaponKey) this.weaponIcon.setTexture(weaponKey);
-    this.bagLabel.setText(RUN.items.length > 0 ? `×${RUN.items.length}` : '');
+    // slot oggetto rapido (rotella / F): icona + quantità in borsa
+    g.fillStyle(0x000000, 0.5);
+    g.fillRoundedRect(314, 20, 48, 30, 4);
+    g.lineStyle(1.5, 0x6d5f3a, 1);
+    g.strokeRoundedRect(314, 20, 48, 30, 4);
+    const quickKey = ITEMS[RUN.quickItem].textureKey as TextureKey;
+    if (this.quickIcon.texture.key !== quickKey) this.quickIcon.setTexture(quickKey);
+    const quickCount = RUN.countOf(RUN.quickItem);
+    this.quickIcon.setAlpha(quickCount > 0 ? 1 : 0.35);
+    this.quickLabel.setText(`×${quickCount}`);
     // ampolle
     for (let i = 0; i < p.mfl; i++) {
       g.fillStyle(i < p.fl ? 0x7fb7d8 : 0x2a2a33, 1);
