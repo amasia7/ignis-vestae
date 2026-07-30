@@ -99,6 +99,8 @@ export class FightScene extends Phaser.Scene implements CombatHost, BossHost {
 
     const bs = strings().bosses[this.boss.id];
     this.banner(bs.name, bs.sub);
+    // legenda dei telegrafi colorati, discreta sotto la barra del boss
+    T(this, W / 2, H - 20, strings().fight.legend, 11, 'rgba(163,146,122,0.75)').setDepth(10);
     beep(60, 0.6, 'sine', 0.05, -20);
   }
 

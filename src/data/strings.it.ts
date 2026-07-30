@@ -177,6 +177,7 @@ export const STRINGS_IT: Strings = {
     bossDown: 'CUSTODE  ANNIENTATO',
     retryTouch: 'tocca: rialzati al braciere',
     retryKey: 'INVIO: rialzati al braciere',
+    legend: 'bagliore  ·  azzurro: salta  ·  oro: schiva  ·  porpora: incassa o para',
   },
 
   interlude: {

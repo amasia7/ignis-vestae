@@ -4,14 +4,16 @@ import { PALLADIO } from '../../data/bosses';
 import { puff, ringFx } from '../../fx/particles';
 import { beep } from '../../fx/audio';
 import { shake } from '../../fx/screenShake';
-import { BossBase, type BossHost } from './BossBase';
+import { BossBase, DODGE_TINTS, type BossHost } from './BossBase';
 
 type PalladioState = 'idle' | 'combo' | 'throw' | 'slam' | 'awaken';
 
 /**
  * BOSS 3: IL PALLADIO — combo di lancia / lancia scagliata / salto-schianto
  * con onde d'urto / risveglio in fase 2 (hp <= 230, tinta oro).
- * Port fedele del legacy (r. 558-643).
+ * Port del legacy (r. 558-643) più il rework: telegrafi colorati per
+ * risposta (combo = schivata, lancia = salto, schianto = schivata,
+ * risveglio = incasso) e fase 2 più veloce E più dolorosa.
  */
 export class Palladio extends BossBase<PalladioState> {
   private readonly d = PALLADIO;
@@ -79,7 +81,7 @@ export class Palladio extends BossBase<PalladioState> {
       } else {
         if (this.cyc <= dt * 1.5) this.face = px < this.x ? -1 : 1;
         if (this.cyc < wu) {
-          this.setGlow(true, d.glowTint);
+          this.setGlow(true, DODGE_TINTS.roll);
           this.spear.setPosition(-2, -58);
         } else if (this.cyc < wu + act) {
           this.spear.setPosition(26, -58);
@@ -89,7 +91,7 @@ export class Palladio extends BossBase<PalladioState> {
             GROUND + d.combo.hitOffsetY,
             d.combo.hit.w,
             d.combo.hit.h,
-            d.combo.hit.damage,
+            this.dmg(d.combo.hit.damage),
             this.face * d.combo.hit.knockback,
           );
           if (!this.hitDone) {
@@ -106,7 +108,7 @@ export class Palladio extends BossBase<PalladioState> {
     } else if (this.state === 'throw') {
       const wu = d.throw.windupMs * sp;
       if (this.aT < wu) {
-        this.setGlow(true, d.glowTint);
+        this.setGlow(true, DODGE_TINTS.jump);
         this.spear.setPosition(2, -70);
         this.spear.setRotation(-0.12);
       }
@@ -127,7 +129,7 @@ export class Palladio extends BossBase<PalladioState> {
       // r. 610: windup 330 FISSO, non scalato in fase 2 (BALANCE-NOTES §1)
       const wu = d.slam.windupMs;
       if (this.aT < wu) {
-        this.setGlow(true, d.glowTint);
+        this.setGlow(true, DODGE_TINTS.roll);
         if (!this.hitDone) {
           this.hitDone = true;
           this.landed = false;
@@ -147,7 +149,7 @@ export class Palladio extends BossBase<PalladioState> {
             this.x,
             GROUND + (d.slam.hit.offsetY ?? 0),
             d.slam.hit.radius,
-            d.slam.hit.damage,
+            this.dmg(d.slam.hit.damage),
             0,
           );
           this.host.addWave(this.x - d.slam.waveSpawnOffset, -d.slam.waveSpeed);
@@ -169,7 +171,7 @@ export class Palladio extends BossBase<PalladioState> {
           this.x,
           GROUND + (d.awaken.hit.offsetY ?? 0),
           d.awaken.hit.radius,
-          d.awaken.hit.damage,
+          this.dmg(d.awaken.hit.damage),
           (px < this.x ? -1 : 1) * d.awaken.hit.knockback,
         );
         ringFx(this.scene, this.x, GROUND - 50, 0xffe28a, 4.4, 420);

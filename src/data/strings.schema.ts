@@ -102,6 +102,8 @@ export interface Strings {
     readonly bossDown: string;
     readonly retryTouch: string;
     readonly retryKey: string;
+    /** Legenda dei colori dei telegrafi del boss (salto/schivata/incasso). */
+    readonly legend: string;
   };
   readonly interlude: {
     readonly heading: string;

@@ -4,14 +4,15 @@ import { EQUUS } from '../../data/bosses';
 import { puff } from '../../fx/particles';
 import { beep } from '../../fx/audio';
 import { shake } from '../../fx/screenShake';
-import { BossBase, type BossHost } from './BossBase';
+import { BossBase, DODGE_TINTS, type BossHost } from './BossBase';
 
-type EquusState = 'idle' | 'charge' | 'rear' | 'fire';
+type EquusState = 'idle' | 'charge' | 'rear' | 'fire' | 'wave';
 
 /**
- * BOSS 1: EQUUS OCTOBER — carica / impennata / soffio di fuoco.
- * Port fedele del legacy (r. 425-477): stessa sequenza di stati, stessi
- * telegrafi, stesse probabilità (ordine delle estrazioni incluso).
+ * BOSS 1: EQUUS OCTOBER — carica / impennata / soffio di fuoco / onda bassa.
+ * Port del legacy (r. 425-477) più il rework: l'onda si scavalca SOLO col
+ * salto e i telegrafi sono colorati per tipo di risposta (vedi DODGE_TINTS).
+ * Primo boss del gioco: NIENTE fase 2.
  */
 export class Equus extends BossBase<EquusState> {
   private readonly d = EQUUS;
@@ -39,12 +40,13 @@ export class Equus extends BossBase<EquusState> {
           this.begin('charge');
           beep(70, 0.4, 'sawtooth', 0.06, 20);
         } else if (Math.random() < d.selector.rearChance) this.begin('rear');
+        else if (Math.random() < d.wave.chance) this.begin('wave');
         else this.begin('fire');
       }
     } else if (this.state === 'charge') {
       const wu = d.charge.windupMs * sp;
       if (this.aT < wu) {
-        this.setGlow(true);
+        this.setGlow(true, DODGE_TINTS.roll);
         if (Math.random() < 0.35)
           puff(this.scene, this.x - this.face * 46, GROUND - 8, 0x8a7d6a, 1, 24, 260);
       } else {
@@ -55,7 +57,7 @@ export class Equus extends BossBase<EquusState> {
           GROUND - d.charge.hit.h,
           d.charge.hit.w,
           d.charge.hit.h,
-          d.charge.hit.damage,
+          this.dmg(d.charge.hit.damage),
           this.face * d.charge.hit.knockback,
         );
         if (Math.random() < 0.7)
@@ -76,7 +78,7 @@ export class Equus extends BossBase<EquusState> {
     } else if (this.state === 'rear') {
       const wu = d.rear.windupMs * sp;
       if (this.aT < wu) {
-        this.setGlow(true);
+        this.setGlow(true, DODGE_TINTS.roll);
         // r. 457: -face*0.35 (windupRotation è già -0.35)
         this.img.rotation = this.face * d.rear.windupRotation;
       }
@@ -86,7 +88,7 @@ export class Equus extends BossBase<EquusState> {
           this.x + this.face * (d.rear.hit.offsetX ?? 0),
           GROUND + (d.rear.hit.offsetY ?? 0),
           d.rear.hit.radius,
-          d.rear.hit.damage,
+          this.dmg(d.rear.hit.damage),
           this.face * d.rear.hit.knockback,
         );
         shake(this.scene, 160, 0.01);
@@ -107,7 +109,7 @@ export class Equus extends BossBase<EquusState> {
       }
     } else if (this.state === 'fire') {
       const wu = d.fire.windupMs * sp;
-      if (this.aT < wu) this.setGlow(true);
+      if (this.aT < wu) this.setGlow(true, DODGE_TINTS.jump);
       if (!this.hitDone && this.aT >= wu) {
         this.hitDone = true;
         for (let i = 1; i <= d.fire.flameCount; i++)
@@ -119,6 +121,23 @@ export class Equus extends BossBase<EquusState> {
       if (this.aT >= wu + d.fire.recoverMs) {
         this.begin('idle');
         this.cool = d.fire.cooldownMs * sp;
+      }
+    } else if (this.state === 'wave') {
+      // onda bassa che corre a terra: si scavalca solo col salto
+      const wu = d.wave.windupMs * sp;
+      if (this.aT < wu) {
+        this.setGlow(true, DODGE_TINTS.jump);
+        if (Math.random() < 0.4)
+          puff(this.scene, this.x + this.face * 40, GROUND - 10, 0x7fb7ff, 1, 18, 240);
+      }
+      if (!this.hitDone && this.aT >= wu) {
+        this.hitDone = true;
+        this.host.addWave(this.x + this.face * 30, this.face * d.wave.speed);
+        beep(120, 0.25, 'triangle', 0.06, -60);
+      }
+      if (this.aT >= wu + d.wave.recoverMs) {
+        this.begin('idle');
+        this.cool = d.wave.cooldownMs * sp;
       }
     }
 

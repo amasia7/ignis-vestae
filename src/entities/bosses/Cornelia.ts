@@ -4,14 +4,16 @@ import { CORNELIA } from '../../data/bosses';
 import { puff, ringFx } from '../../fx/particles';
 import { beep } from '../../fx/audio';
 import { shake } from '../../fx/screenShake';
-import { BossBase, type BossHost } from './BossBase';
+import { BossBase, DODGE_TINTS, type BossHost } from './BossBase';
 
 type CorneliaState = 'idle' | 'hands' | 'grab' | 'scream' | 'tele';
 
 /**
  * BOSS 2: CORNELIA, LA SEPOLTA VIVA — mani dal terreno telegrafate /
  * afferrata in scatto / urlo ad area / teletrasporto (che concatena sempre
- * nella afferrata). Port fedele del legacy (r. 479-556).
+ * nella afferrata). Port del legacy (r. 479-556) più il rework: telegrafi
+ * colorati per risposta (mani = salto, afferrata = schivata, urlo = incasso)
+ * e fase 2 sensibilmente più dura (più veloce E più dolorosa).
  */
 export class Cornelia extends BossBase<CorneliaState> {
   private readonly d = CORNELIA;
@@ -77,7 +79,7 @@ export class Cornelia extends BossBase<CorneliaState> {
             x,
             GROUND + (d.hands.hit.offsetY ?? 0),
             d.hands.hit.radius,
-            d.hands.hit.damage,
+            this.dmg(d.hands.hit.damage),
             0,
           );
           puff(this.scene, x, GROUND - 8, 0xb9c7b0, 8, 50, 340);
@@ -93,7 +95,7 @@ export class Cornelia extends BossBase<CorneliaState> {
       }
     } else if (this.state === 'grab') {
       const wu = d.grab.windupMs * sp;
-      if (this.aT < wu) this.setGlow(true, d.glowTint);
+      if (this.aT < wu) this.setGlow(true, DODGE_TINTS.roll);
       if (!this.hitDone && this.aT >= wu) {
         this.hitDone = true;
         this.gdir = px < this.x ? -1 : 1;
@@ -105,7 +107,7 @@ export class Cornelia extends BossBase<CorneliaState> {
           GROUND - d.grab.hit.h,
           d.grab.hit.w,
           d.grab.hit.h,
-          d.grab.hit.damage,
+          this.dmg(d.grab.hit.damage),
           this.gdir * d.grab.hit.knockback,
         );
       }
@@ -115,14 +117,14 @@ export class Cornelia extends BossBase<CorneliaState> {
       }
     } else if (this.state === 'scream') {
       const wu = d.scream.windupMs * sp;
-      if (this.aT < wu) this.setGlow(true, d.glowTint);
+      if (this.aT < wu) this.setGlow(true, DODGE_TINTS.tank);
       if (!this.hitDone && this.aT >= wu) {
         this.hitDone = true;
         this.host.circHit(
           this.x,
           GROUND + (d.scream.hit.offsetY ?? 0),
           d.scream.hit.radius,
-          d.scream.hit.damage,
+          this.dmg(d.scream.hit.damage),
           (px < this.x ? -1 : 1) * d.scream.hit.knockback,
         );
         ringFx(this.scene, this.x, GROUND - 50, 0xdcebff, 4.6, 340);

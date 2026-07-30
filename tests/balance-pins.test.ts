@@ -63,10 +63,18 @@ describe('valori non negoziabili del game feel', () => {
     expect(PALLADIO.phase2.comparison).toBe('lte');
   });
 
-  it('moltiplicatori di velocità di fase 2: 0.75 / 0.72 / 0.68', () => {
-    expect([EQUUS.phase2.speedMult, CORNELIA.phase2.speedMult, PALLADIO.phase2.speedMult]).toEqual([
-      0.75, 0.72, 0.68,
-    ]);
+  // NOTA: rework voluto dal committente — il PRIMO boss non ha fase 2,
+  // gli altri ce l'hanno sensibilmente più dura (velocità E danno).
+  it('fase 2: assente per Equus, inasprita per Cornelia e Palladio', () => {
+    expect(EQUUS.phase2.hpThreshold).toBe(0); // mai attiva
+    expect(EQUUS.phase2.speedMult).toBe(1);
+    expect([CORNELIA.phase2.speedMult, PALLADIO.phase2.speedMult]).toEqual([0.66, 0.62]);
+    expect([CORNELIA.phase2.damageMult, PALLADIO.phase2.damageMult]).toEqual([1.25, 1.3]);
+  });
+
+  it("Equus ha l'onda bassa: la mossa che si scavalca solo col salto", () => {
+    expect(EQUUS.wave.speed).toBeGreaterThan(0);
+    expect(EQUUS.wave.windupMs).toBeGreaterThan(300); // sempre telegrafata
   });
 
   it('pericoli: fiamma 7 ogni 750ms per 4s, lancia 15, onda 14', () => {

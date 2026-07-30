@@ -4,7 +4,21 @@ import { FIGHT } from '../../config/balance';
 import type { BossCommonData, BossId } from '../../data/bosses';
 import type { TextureKey } from '../../art/registry';
 import { StateMachine } from '../../core/StateMachine';
+import { puff, ringFx } from '../../fx/particles';
+import { beep } from '../../fx/audio';
+import { shake } from '../../fx/screenShake';
 import type { Player } from '../Player';
+
+/**
+ * Colori dei telegrafi per tipo di risposta richiesta al giocatore:
+ * azzurro = si scavalca col SALTO, oro = si evita con la SCHIVATA,
+ * porpora = difficile da evitare, meglio incassare (o parare) lontani.
+ */
+export const DODGE_TINTS = {
+  jump: 0x7fb7ff,
+  roll: 0xffd76b,
+  tank: 0xc06fd8,
+} as const;
 
 /** Ciò che un boss chiede alla scena di combattimento. */
 export interface BossHost {
@@ -90,6 +104,11 @@ export abstract class BossBase<TState extends string = string> {
     return this.phase2Active ? this.data.phase2.speedMult : 1;
   }
 
+  /** Danno effettivo di un colpo: in fase 2 morde più forte. */
+  protected dmg(base: number): number {
+    return Math.round(base * (this.phase2Active ? this.data.phase2.damageMult : 1));
+  }
+
   /** Hurtbox ancorata a terra, centrata in x. */
   rect(): Phaser.Geom.Rectangle {
     const { w, h } = this.data.hurtbox;
@@ -114,7 +133,22 @@ export abstract class BossBase<TState extends string = string> {
     this.sm.update(dt);
   }
 
+  /** Annuncio unico dell'ingresso in fase 2 (solo per i boss che ce l'hanno). */
+  private phase2Announced = false;
+
   protected postUpdate(dt: number): void {
+    if (
+      !this.phase2Announced &&
+      !this.dead &&
+      this.phase2Active &&
+      this.data.phase2.speedMult < 1
+    ) {
+      this.phase2Announced = true;
+      ringFx(this.scene, this.x, GROUND - this.data.textureH / 2, 0xc06fd8, 5, 480);
+      puff(this.scene, this.x, GROUND - this.data.textureH / 2, 0xc06fd8, 24, 90, 520);
+      shake(this.scene, 220, 0.013);
+      beep(60, 0.9, 'sawtooth', 0.08, -30);
+    }
     this.x = Phaser.Math.Clamp(this.x, FIGHT.bossClampMarginX, W - FIGHT.bossClampMarginX);
     this.node.x = this.x;
     this.node.scaleX = this.face;

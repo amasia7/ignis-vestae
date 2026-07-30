@@ -35,12 +35,14 @@ export interface BossCommonData {
   readonly glowTint: number;
   readonly hurtbox: { readonly w: number; readonly h: number }; // ancorata a terra, centrata in x
   readonly phase2: {
-    /** Soglia di attivazione sugli hp. */
+    /** Soglia di attivazione sugli hp (0 = fase 2 disattivata: primi boss). */
     readonly hpThreshold: number;
     /** `lt` = si attiva con hp < soglia; `lte` = con hp <= soglia (Palladio). */
     readonly comparison: 'lt' | 'lte';
     /** Moltiplicatore applicato a windup e cooldown (valori < 1 = più veloce). */
     readonly speedMult: number;
+    /** Moltiplicatore del danno in fase 2 (1 = invariato). */
+    readonly damageMult: number;
   };
   readonly idle: {
     readonly moveSpeed: number;
@@ -80,6 +82,15 @@ export interface EquusData extends BossCommonData {
     readonly recoverMs: number;
     readonly cooldownMs: number;
   };
+  /** Novità del rework: onda bassa che corre a terra — si scavalca SOLO col salto. */
+  readonly wave: {
+    /** Estratta al posto del soffio con questa probabilità. */
+    readonly chance: number;
+    readonly windupMs: number;
+    readonly speed: number;
+    readonly recoverMs: number;
+    readonly cooldownMs: number;
+  };
 }
 
 export const EQUUS: EquusData = {
@@ -90,7 +101,8 @@ export const EQUUS: EquusData = {
   textureH: 120,
   glowTint: 0xff5a1e, // r. 407/411 (default del glow)
   hurtbox: { w: 120, h: 84 }, // r. 430
-  phase2: { hpThreshold: 150, comparison: 'lt', speedMult: 0.75 }, // r. 432: hp < mhp/2
+  // primo boss del gioco: NIENTE fase 2 (rework voluto dal committente)
+  phase2: { hpThreshold: 0, comparison: 'lt', speedMult: 1, damageMult: 1 },
   idle: { moveSpeed: 80 }, // r. 438
   selector: { chargeDistance: 300, chargeChance: 0.3, rearChance: 0.5 }, // r. 441-443
   charge: {
@@ -115,6 +127,13 @@ export const EQUUS: EquusData = {
     flameSpacing: 66, // r. 469
     recoverMs: 380, // r. 471
     cooldownMs: 1400, // r. 471
+  },
+  wave: {
+    chance: 0.5,
+    windupMs: 560,
+    speed: 430,
+    recoverMs: 320,
+    cooldownMs: 1300,
   },
 };
 
@@ -170,7 +189,8 @@ export const CORNELIA: CorneliaData = {
   textureH: 112,
   glowTint: 0xa8c8ff, // r. 494
   hurtbox: { w: 52, h: 96 }, // r. 486
-  phase2: { hpThreshold: 170, comparison: 'lt', speedMult: 0.72 }, // r. 485/490
+  // rework: fase 2 sensibilmente più dura (era speedMult 0.72, danno pieno)
+  phase2: { hpThreshold: 170, comparison: 'lt', speedMult: 0.66, damageMult: 1.25 },
   idle: { moveSpeed: 55 }, // r. 497
   float: { amplitude: 6, periodMs: 260 }, // r. 493
   selector: { closeDistance: 160, screamChance: 0.6, handsChance: 0.5, teleChance: 0.8 }, // r. 500-501
@@ -265,7 +285,8 @@ export const PALLADIO: PalladioData = {
   textureH: 120,
   glowTint: 0xffd76b, // r. 573
   hurtbox: { w: 48, h: 104 }, // r. 566
-  phase2: { hpThreshold: 230, comparison: 'lte', speedMult: 0.68 }, // r. 568/570: hp <= 230
+  // rework: fase 2 sensibilmente più dura (era solo speedMult 0.68)
+  phase2: { hpThreshold: 230, comparison: 'lte', speedMult: 0.62, damageMult: 1.3 }, // r. 568/570
   phase2Tint: 0xd8b44f, // r. 569
   idle: { moveSpeed: 110, stopDistance: 95 }, // r. 578
   selector: { farDistance: 260, slamFarChancePhase2: 0.45, slamNearChancePhase2: 0.25 }, // r. 581-583
