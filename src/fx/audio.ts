@@ -22,6 +22,11 @@ export function initAudio(): void {
   }
 }
 
+/** Contesto WebAudio condiviso (null finché il primo gesto non lo sblocca). */
+export function getAudioContext(): AudioContext | null {
+  return AC;
+}
+
 export function beep(f: number, d: number, type?: BeepType, g?: number, slide?: number): void {
   if (!AC || settings.volume <= 0) return;
   try {

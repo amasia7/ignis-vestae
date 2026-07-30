@@ -23,6 +23,7 @@ export class InventoryScene extends Phaser.Scene {
   private cursor = 0;
   private rowObjs: Phaser.GameObjects.GameObject[] = [];
   private descText!: Phaser.GameObjects.Text;
+  private fxText!: Phaser.GameObjects.Text;
 
   constructor() {
     super('inventory');
@@ -39,10 +40,11 @@ export class InventoryScene extends Phaser.Scene {
     this.add.rectangle(W / 2, H / 2, 560, 420, 0x14101f, 0.95).setStrokeStyle(1.5, 0x4a3c26);
     T(this, W / 2, H / 2 - 186, s.title, 26, '#c9a227');
     T(this, W / 2, H / 2 - 158, s.hint, 12, '#a3927a');
-    this.descText = T(this, W / 2, H / 2 + 176, '', 13, '#c9b98f', {
+    this.descText = T(this, W / 2, H / 2 + 160, '', 13, '#c9b98f', {
       wordWrap: { width: 500 },
       fontStyle: 'italic',
     });
+    this.fxText = T(this, W / 2, H / 2 + 192, '', 13, '#9fd0ea', { wordWrap: { width: 500 } });
 
     this.rebuild();
 
@@ -124,9 +126,12 @@ export class InventoryScene extends Phaser.Scene {
     const row = this.rows[this.cursor];
     if (!row) {
       this.descText.setText('');
+      this.fxText.setText('');
       return;
     }
-    this.descText.setText(row.kind === 'weapon' ? s.weapons[row.id].desc : s.items[row.id].desc);
+    const entry = row.kind === 'weapon' ? s.weapons[row.id] : s.items[row.id];
+    this.descText.setText(entry.desc);
+    this.fxText.setText(entry.fx);
   }
 
   private move(dir: number): void {

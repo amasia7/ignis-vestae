@@ -175,24 +175,29 @@ export const STRINGS_IT: Strings = {
     secespita: {
       name: 'SECESPITA',
       desc: 'Il coltello sacrificale delle Vestali. Conosce la carne e il rito.',
+      fx: 'Il ferro della tua iniziazione: danno consueto.',
     },
     spatha: {
       name: 'SPATHA',
       desc: 'La lama lunga del guerriero sacrilego. Pesante di colpe.',
+      fx: 'Il ferro della tua iniziazione: danno consueto.',
     },
     lituus: {
       name: 'LITUUS',
       desc: 'Il bastone ricurvo degli àuguri. Scrive presagi nell’aria.',
+      fx: 'Il ferro della tua iniziazione: danno consueto.',
     },
     gladius: {
       name: 'GLADIO CONSACRATO',
-      desc: 'Ferro di legionario, cosparso di mola salsa. Morde più a fondo.',
+      desc: 'Ferro di legionario caduto scortando le reliquie, cosparso di mola salsa dalle vergini in fuga.',
+      fx: 'In pugno: ogni colpo infligge il 10% di danno in più.',
     },
   },
   items: {
     balsamo: {
       name: 'BALSAMO DI EGERIA',
-      desc: 'Unguento della ninfa delle fonti. Usalo per rimarginare le ferite.',
+      desc: 'Unguento della ninfa che dettò a Numa i riti. Le sue acque rimarginano ciò che il fuoco non può.',
+      fx: 'Dalla borsa: ridona 30 punti di vita.',
     },
   },
   inventory: {

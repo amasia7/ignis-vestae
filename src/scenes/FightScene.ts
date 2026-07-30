@@ -87,7 +87,9 @@ export class FightScene extends Phaser.Scene implements CombatHost, BossHost {
     // HUD come scena separata sopra questa: la si ricrea a ogni fight
     // e la si spegne quando la fight finisce (interludio, retry, titolo)
     if (this.scene.isActive('hud') || this.scene.isSleeping('hud')) this.scene.stop('hud');
-    this.scene.launch('hud');
+    // target SEMPRE esplicito: senza data Phaser riusa quelli del lancio
+    // precedente (era il bug delle barre congelate dopo un livello)
+    this.scene.launch('hud', { target: 'fight' });
     this.events.once('shutdown', () => this.scene.stop('hud'));
 
     const bs = strings().bosses[this.boss.id];

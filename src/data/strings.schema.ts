@@ -95,9 +95,13 @@ export interface Strings {
     readonly ability: string;
     readonly bag: string;
   };
-  /** Armi e oggetti (slot arma + borsa). */
-  readonly weapons: Readonly<Record<WeaponId, { readonly name: string; readonly desc: string }>>;
-  readonly items: Readonly<Record<ItemId, { readonly name: string; readonly desc: string }>>;
+  /** Armi e oggetti (slot arma + borsa): desc = lore, fx = cosa fa. */
+  readonly weapons: Readonly<
+    Record<WeaponId, { readonly name: string; readonly desc: string; readonly fx: string }>
+  >;
+  readonly items: Readonly<
+    Record<ItemId, { readonly name: string; readonly desc: string; readonly fx: string }>
+  >;
   readonly inventory: {
     readonly title: string;
     readonly weaponsHeader: string;

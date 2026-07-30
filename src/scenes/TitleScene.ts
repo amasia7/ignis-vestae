@@ -6,9 +6,9 @@ import { SaveManager } from '../core/SaveManager';
 import { IS_TOUCH } from '../input/device';
 import { GamepadMenu } from '../input/GamepadMenu';
 import { beep, initAudio } from '../fx/audio';
+import { startTitleMusic, stopTitleMusic } from '../fx/music';
 import { puff } from '../fx/particles';
 import { T } from '../ui/text';
-import { buildArena } from './arena';
 
 /** Schermata del titolo (port del legacy r. 692-713). */
 export class TitleScene extends Phaser.Scene {
@@ -18,12 +18,34 @@ export class TitleScene extends Phaser.Scene {
 
   create(): void {
     const s = strings();
-    buildArena(this, 2);
-    this.add.rectangle(W / 2, H / 2, W, H, 0x000000, 0.45).setDepth(1);
+    // richiesta del committente: nero assoluto, solo l'altare del fuoco
+    this.cameras.main.setBackgroundColor('#000000');
     this.add
       .image(W / 2, GROUND, 'brazier')
       .setOrigin(0.5, 1)
       .setDepth(2);
+    // alone caldo del fuoco sul nero
+    const halo = this.add
+      .image(W / 2, GROUND - 40, 'dot')
+      .setTint(0xff7828)
+      .setScale(30, 18)
+      .setAlpha(0.06)
+      .setDepth(1);
+    this.tweens.add({
+      targets: halo,
+      alpha: 0.1,
+      duration: 1400,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.inOut',
+    });
+
+    // musica d'intro: parte appena l'audio è sbloccato dal primo gesto
+    startTitleMusic();
+    const tryMusic = (): void => startTitleMusic();
+    this.input.keyboard?.on('keydown', tryMusic);
+    this.input.on('pointerdown', tryMusic);
+    this.events.once('shutdown', () => stopTitleMusic());
     T(this, W / 2, 168, s.title.logo, 58, '#c9a227').setDepth(2);
     T(this, W / 2, 208, s.title.subtitle, 18, '#8d7c5c').setDepth(2);
     T(this, W / 2, 234, s.title.tagline, 14, '#8d7c5c').setDepth(2);

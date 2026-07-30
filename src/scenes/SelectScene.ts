@@ -54,13 +54,14 @@ export class SelectScene extends Phaser.Scene {
         if (this.sel === i) this.confirm();
         else this.pick(i);
       });
-      this.add.image(x0 + CARD_W / 2, CARD_Y0 + 112, `pl${i}` as TextureKey).setScale(1.25);
+      // nome e sottotitolo in testa alla card, sopra la figura
+      T(this, x0 + CARD_W / 2, CARD_Y0 + 28, cs.name, 19, '#e8cf7a');
+      T(this, x0 + CARD_W / 2, CARD_Y0 + 52, cs.sub, 13, '#b3a284');
+      this.add.image(x0 + CARD_W / 2, CARD_Y0 + 138, `pl${i}` as TextureKey).setScale(1.25);
       this.add
-        .image(x0 + CARD_W / 2 + 20, CARD_Y0 + 112 - 30, `wp${i}` as TextureKey)
+        .image(x0 + CARD_W / 2 + 20, CARD_Y0 + 138 - 30, `wp${i}` as TextureKey)
         .setOrigin(0.12, 0.5)
         .setRotation(-0.25);
-      T(this, x0 + CARD_W / 2, CARD_Y0 + 150, cs.name, 17, '#c9b890');
-      T(this, x0 + CARD_W / 2, CARD_Y0 + 171, cs.sub, 13, '#a3927a');
       T(this, x0 + CARD_W / 2, CARD_Y0 + 208, cs.desc, 14, '#e2d5b3', {
         wordWrap: { width: CARD_W - 34 },
         fontStyle: 'italic',

@@ -192,29 +192,41 @@ export class LevelScene extends Phaser.Scene implements CombatHost, EnemyHost {
   private collect(p: Pickup): void {
     const s = strings();
     let name: string;
+    let fx: string;
     if (p.kind === 'weapon') {
       RUN.addWeapon(p.id as WeaponId);
-      name = s.weapons[p.id as WeaponId].name;
+      const entry = s.weapons[p.id as WeaponId];
+      name = entry.name;
+      fx = entry.fx;
     } else {
       RUN.addItem(p.id as ItemId);
-      name = s.items[ITEMS[p.id as ItemId].id].name;
+      const entry = s.items[ITEMS[p.id as ItemId].id];
+      name = entry.name;
+      fx = entry.fx;
     }
     beep(660, 0.2, 'sine', 0.05, 160);
     ringFx(this, p.x, GROUND - 30, 0xffd27a, 2.4, 320);
     const toast = T(
       this,
       p.x,
-      GROUND - 80,
+      GROUND - 92,
       `${s.inventory.picked}  ·  ${name}`,
-      14,
+      15,
       '#ffd27a',
     ).setDepth(11);
+    const toastFx = T(this, p.x, GROUND - 72, fx, 12, '#9fd0ea', {
+      wordWrap: { width: 340 },
+    }).setDepth(11);
     this.tweens.add({
-      targets: toast,
-      y: GROUND - 110,
+      targets: [toast, toastFx],
+      y: '-=30',
       alpha: 0,
-      duration: 1300,
-      onComplete: () => toast.destroy(),
+      duration: 2200,
+      ease: 'Sine.in',
+      onComplete: () => {
+        toast.destroy();
+        toastFx.destroy();
+      },
     });
   }
 
